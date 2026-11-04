@@ -436,14 +436,20 @@ export async function createTeamUser(input: { email: string; full_name: string; 
     if (!z.string().email().safeParse(email).success) return { ok: false, error: "E-mail inválido." };
     if (input.password.length < 10) return { ok: false, error: "A senha provisória deve ter pelo menos 10 caracteres." };
     const role = z.enum(["admin", "corretor"]).parse(input.role);
-    const { error } = await admin.auth.admin.createUser({
+    const full_name = input.full_name.trim().slice(0, 120);
+    const { data: created, error } = await admin.auth.admin.createUser({
       email,
       password: input.password,
       email_confirm: true,
       app_metadata: { role },
-      user_metadata: { full_name: input.full_name.trim().slice(0, 120) },
+      user_metadata: { full_name },
     });
     if (error) return { ok: false, error: error.message.includes("already") ? "Já existe um usuário com este e-mail." : error.message };
+    // Garante o perfil mesmo que o gatilho de criação automática não tenha rodado
+    const { error: pErr } = await admin
+      .from("profiles")
+      .upsert({ id: created.user.id, email, full_name, role, active: true });
+    if (pErr) return { ok: false, error: "Usuário criado, mas o perfil não foi salvo: " + pErr.message };
     revalidatePath("/admin/usuarios");
     return { ok: true, message: "Usuário criado. Envie a senha provisória com segurança e peça para trocá-la no primeiro acesso." };
   } catch (e) {

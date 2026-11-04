@@ -173,3 +173,11 @@
   }
   .reveal, .img-smooth { opacity: 1 !important; transform: none !important; }
 }
+
+/* Algarismos alinhados na fonte serifada (preços e contadores legíveis) */
+.font-display,
+.heading-xl,
+.heading-lg,
+.heading-md {
+  font-variant-numeric: lining-nums;
+}

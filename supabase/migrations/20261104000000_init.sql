@@ -137,6 +137,8 @@ create table public.properties (
   neighborhood text,
   address text,
   show_address boolean not null default false,
+  -- Endereço exibido publicamente: somente quando o corretor permite
+  public_address text generated always as (case when show_address then address end) stored,
   city text not null default 'Rio de Janeiro',
   state text not null default 'RJ',
   sale_price numeric(14, 2) check (sale_price is null or sale_price >= 0),
@@ -458,20 +460,8 @@ revoke all on public.properties from anon;
 grant select (id, code, slug, status, business, type, title, neighborhood, city, state,
   sale_price, rent_price, condo_fee, iptu, total_area, built_area, bedrooms, suites, bathrooms,
   parking_spots, description, features, condo_features, video_url, published_at, updated_at,
-  show_address)
+  show_address, public_address)
   on public.properties to anon;
-
--- Endereço exato só é público quando o corretor permite
-create or replace function public.public_address(p public.properties)
-returns text
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select case when p.show_address or public.is_staff() then p.address else null end
-$$;
-grant execute on function public.public_address(public.properties) to anon, authenticated;
 
 -- -----------------------------------------------------------------------------
 -- Storage: bucket público para leitura, escrita apenas pela equipe

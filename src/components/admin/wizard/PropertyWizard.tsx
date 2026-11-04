@@ -141,10 +141,10 @@ export function PropertyWizard({
           setSlug(r.data.slug);
           if (!f.code) setForm((cur) => (cur.code ? cur : { ...cur, code: r.data!.code }));
           if (!currentId) {
+            // O rascunho passa a existir no banco e aparece em Imóveis → Rascunhos.
+            // (A URL não é alterada aqui para não remontar o formulário durante a digitação.)
             idRef.current = r.data.id;
             setId(r.data.id);
-            // Atualiza a URL sem recarregar: permite continuar o rascunho depois
-            window.history.replaceState(null, "", `/admin/imoveis/${r.data.id}?etapa=${wizardStep}`);
           }
         }
         return r.data?.id ?? currentId;
@@ -207,7 +207,6 @@ export function PropertyWizard({
     if (!savedId) return;
     setMaxStep(nextMax);
     setStep(target);
-    window.history.replaceState(null, "", `/admin/imoveis/${savedId}?etapa=${target}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 

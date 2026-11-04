@@ -18,6 +18,15 @@ function revalidatePublic() {
   revalidatePath("/", "layout");
 }
 
+/**
+ * Só revalida o site quando o imóvel está publicado. Evita que o Next atualize a rota
+ * do assistente de cadastro (o que remontaria o formulário) durante a edição de rascunhos.
+ */
+async function revalidateIfPublished(supabase: Awaited<ReturnType<typeof createClient>>, propertyId: string) {
+  const { data } = await supabase.from("properties").select("status").eq("id", propertyId).maybeSingle();
+  if (data?.status === "published") revalidatePublic();
+}
+
 // =============================================================================
 // Autenticação
 // =============================================================================
@@ -141,7 +150,6 @@ export async function saveProperty(id: string | null, input: PropertyInput): Pro
       throw new Error(error.message);
     }
     if (row.status === "published") revalidatePublic();
-    revalidatePath("/admin/imoveis");
     return { ok: true, data: { id: row.id, code: row.code, slug: row.slug } };
   } catch (e) {
     return fail(e);
@@ -230,7 +238,7 @@ export async function registerImages(
     }));
     const { data, error } = await supabase.from("property_images").insert(rows).select("*");
     if (error) throw new Error(error.message);
-    revalidatePublic();
+    await revalidateIfPublished(supabase, propertyId);
     return { ok: true, data: (data ?? []) as PropertyImage[] };
   } catch (e) {
     return fail(e);
@@ -249,7 +257,7 @@ export async function reorderImages(propertyId: string, orderedIds: string[]): P
         .eq("property_id", propertyId);
       if (error) throw new Error(error.message);
     }
-    revalidatePublic();
+    await revalidateIfPublished(supabase, propertyId);
     return { ok: true };
   } catch (e) {
     return fail(e);
@@ -264,7 +272,7 @@ export async function setCoverImage(propertyId: string, imageId: string): Promis
     if (e1) throw new Error(e1.message);
     const { error: e2 } = await supabase.from("property_images").update({ is_cover: true }).eq("id", imageId).eq("property_id", propertyId);
     if (e2) throw new Error(e2.message);
-    revalidatePublic();
+    await revalidateIfPublished(supabase, propertyId);
     return { ok: true };
   } catch (e) {
     return fail(e);
@@ -289,7 +297,7 @@ export async function deleteImage(propertyId: string, imageId: string): Promise<
       const { data: next } = await supabase.from("property_images").select("id").eq("property_id", propertyId).order("position").limit(1);
       if (next?.[0]) await supabase.from("property_images").update({ is_cover: true }).eq("id", next[0].id);
     }
-    revalidatePublic();
+    await revalidateIfPublished(supabase, propertyId);
     return { ok: true };
   } catch (e) {
     return fail(e);

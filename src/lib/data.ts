@@ -141,7 +141,17 @@ export async function getSimilarProperties(p: Property, limit = 3) {
     (x.neighborhood === p.neighborhood ? 2 : 0) +
     (x.type === p.type ? 2 : 0) +
     (ref ? 1 - Math.min(1, Math.abs((x.sale_price ?? x.rent_price ?? 0) - ref) / ref) : 0);
-  return items.sort((a, b) => score(b) - score(a)).slice(0, limit);
+  const ranked = items.sort((a, b) => score(b) - score(a)).slice(0, limit);
+  if (ranked.length >= limit) return ranked;
+  // Completa com os imóveis mais recentes para a seção nunca ficar vazia
+  const { data: recent } = await sb
+    .from("properties")
+    .select(CARD_COLUMNS)
+    .eq("status", "published")
+    .not("id", "in", `(${[p.id, ...ranked.map((r) => r.id)].join(",")})`)
+    .order("published_at", { ascending: false })
+    .limit(limit - ranked.length);
+  return [...ranked, ...((recent ?? []) as Property[])];
 }
 
 export async function getPublishedNeighborhoods(): Promise<string[]> {

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
 import { Logo } from "./Logo";
 import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
@@ -20,6 +21,8 @@ export function Header({ whatsappHref }: { whatsappHref: string }) {
   const search = useSearchParams();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -93,7 +96,9 @@ export function Header({ whatsappHref }: { whatsappHref: string }) {
         </div>
       </div>
 
-      {/* Menu mobile */}
+      {/* Menu mobile (portal: o cabeçalho usa backdrop-filter, que prenderia o position:fixed) */}
+      {mounted &&
+        createPortal(
       <div
         id="mobile-menu"
         className={`fixed inset-0 z-50 xl:hidden ${open ? "pointer-events-auto" : "pointer-events-none"}`}
@@ -141,7 +146,9 @@ export function Header({ whatsappHref }: { whatsappHref: string }) {
             </a>
           </div>
         </div>
-      </div>
+      </div>,
+          document.body,
+        )}
     </header>
   );
 }

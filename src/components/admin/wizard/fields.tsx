@@ -92,7 +92,7 @@ export function Counter({ label, value, onChange }: { label: string; value: numb
         <span className="min-w-8 text-center font-semibold" aria-live="polite">
           {value ?? "—"}
         </span>
-        <button type="button" className="grid h-9 w-9 place-items-center rounded-lg text-lg hover:bg-sand" onClick={() => onChange(Math.min(50, (value ?? -1) + 1))} aria-label={`Aumentar ${label}`}>
+        <button type="button" className="grid h-9 w-9 place-items-center rounded-lg text-lg hover:bg-sand" onClick={() => onChange(Math.min(50, (value ?? 0) + 1))} aria-label={`Aumentar ${label}`}>
           +
         </button>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 import type { PropertyImage } from "@/lib/types";
 import { ArtPlaceholder } from "@/components/ui/ArtPlaceholder";
@@ -111,7 +112,8 @@ export function Gallery({ images, title }: { images: PropertyImage[]; title: str
         </div>
       )}
 
-      {open && (
+      {open &&
+        createPortal(
         <div role="dialog" aria-modal="true" aria-label="Galeria ampliada" className="fixed inset-0 z-[70] flex animate-fade-in flex-col bg-ink/95 backdrop-blur" {...swipe}>
           <div className="flex items-center justify-between p-4 text-white sm:p-6">
             <span className="text-sm text-white/60">
@@ -131,8 +133,9 @@ export function Gallery({ images, title }: { images: PropertyImage[]; title: str
             )}
           </div>
           <div className="h-6" />
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </div>
   );
 }

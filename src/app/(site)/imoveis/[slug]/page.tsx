@@ -164,9 +164,9 @@ export default async function PropertyPage({ params }: { params: Params }) {
           </p>
 
           {facts.length > 0 && (
-            <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-[24px] border border-line bg-line sm:grid-cols-3">
+            <dl className="mt-10 grid grid-cols-2 overflow-hidden rounded-[24px] border border-line bg-white sm:grid-cols-3">
               {facts.map(({ icon: Icon, label, value }) => (
-                <div key={label} className="bg-white p-5">
+                <div key={label} className="-mt-px -ml-px border-t border-l border-line p-5">
                   <Icon className="h-5 w-5 text-gold-deep" strokeWidth={1.5} />
                   <dt className="mt-3 text-xs tracking-wide text-stone uppercase">{label}</dt>
                   <dd className="mt-1 font-display text-2xl font-medium">{value}</dd>

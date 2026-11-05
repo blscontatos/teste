@@ -60,7 +60,7 @@ Enquanto não houver depoimentos reais publicados, o site mostra 3 **exemplos cl
 
 ### 1. Criar o projeto no Supabase
 1. Crie uma conta em <https://supabase.com> e um novo projeto (região **São Paulo**, `sa-east-1`).
-2. Em **Project Settings → API**, copie a `Project URL`, a chave `anon` e a chave `service_role`.
+2. Em **Project Settings → API Keys**, copie a `Project URL`, a **Publishable key** (`sb_publishable_...`, ou a antiga `anon`) e a **Secret key** (`sb_secret_...`, ou a antiga `service_role`).
 
 ### 2. Criar as tabelas, as regras de segurança e o armazenamento de fotos
 Use uma das opções:

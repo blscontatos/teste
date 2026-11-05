@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Logo } from "@/components/site/Logo";
+import { Logo, LogoFull } from "@/components/site/Logo";
 
 export const metadata: Metadata = { title: "Área restrita", robots: { index: false, follow: false } };
 
@@ -11,7 +11,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div aria-hidden className="absolute -right-32 -bottom-32 h-[480px] w-[480px] rounded-full border border-gold/20" />
         <div aria-hidden className="absolute -right-12 -bottom-12 h-[320px] w-[320px] rounded-full border border-gold/30" />
         <div className="relative">
-          <Logo light />
+          <LogoFull width={200} className="h-auto w-[180px]" />
         </div>
         <div className="relative max-w-md">
           <p className="eyebrow text-gold-light">Painel administrativo</p>

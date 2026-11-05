@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AtSign, Mail, MapPin, Phone } from "lucide-react";
-import { Logo } from "./Logo";
+import { LogoFull } from "./Logo";
 import type { SiteSettings } from "@/lib/types";
 import { COMPANY } from "@/lib/constants";
 
@@ -11,7 +11,7 @@ export function Footer({ settings, whatsappHref }: { settings: SiteSettings; wha
       <div className="grain absolute inset-0" />
       <div className="container-luxe relative grid gap-12 py-20 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         <div className="space-y-6">
-          <Logo light />
+          <LogoFull width={190} className="h-auto w-[170px]" />
           <p className="max-w-xs text-sm leading-relaxed">
             Imóveis selecionados na Barra da Tijuca, Recreio dos Bandeirantes e regiões próximas, com atendimento
             personalizado do primeiro contato à entrega das chaves.

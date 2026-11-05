@@ -15,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/imoveis?bairro=${encodeURIComponent("Recreio dos Bandeirantes")}`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${base}/imoveis?bairro=${encodeURIComponent("Barra da Tijuca")}`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${base}/imoveis?bairro=${encodeURIComponent("Barra Olímpica")}`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${base}/imoveis?bairro=${encodeURIComponent("Angra dos Reis")}`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
     { url: `${base}/vender`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/sobre`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/contato`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },

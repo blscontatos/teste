@@ -27,7 +27,8 @@ function normalize(sp: Record<string, string | string[] | undefined>): F {
 function headline(f: F) {
   const tipo = PROPERTY_TYPES.find((t) => t.value === f.tipo)?.plural ?? "Imóveis";
   const neg = f.negocio === "comprar" ? " à venda" : f.negocio === "alugar" ? " para alugar" : "";
-  const local = f.bairro ? ` ${f.bairro.startsWith("Barra") ? "na" : "no"} ${f.bairro}` : " na Barra da Tijuca e Recreio";
+  const prep = (b: string) => (b === "Angra dos Reis" ? "em" : b.startsWith("Barra") ? "na" : "no");
+  const local = f.bairro ? ` ${prep(f.bairro)} ${f.bairro}` : " na Barra da Tijuca, Recreio e Angra dos Reis";
   return `${tipo}${neg}${local}`;
 }
 

@@ -112,8 +112,8 @@ export function PropertyFilters({
       >
         <div className="overflow-hidden">
           <div className="grid gap-3 rounded-[26px] border border-line bg-sand/60 p-4 sm:grid-cols-2 lg:grid-cols-6">
-            <Select label="Bairro" value={values.bairro} onChange={(v) => set("bairro", v)}>
-              <option value="">Todos os bairros</option>
+            <Select label="Bairro ou região" value={values.bairro} onChange={(v) => set("bairro", v)}>
+              <option value="">Todas as regiões</option>
               {allNeighborhoods.map((n) => (
                 <option key={n} value={n}>
                   {n}

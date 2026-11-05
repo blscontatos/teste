@@ -9,7 +9,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Contato",
-  description: "Fale com a Luiz Vieira Negócios Imobiliários pelo WhatsApp, telefone ou e-mail. Atendimento na Barra da Tijuca e no Recreio dos Bandeirantes.",
+  description: "Fale com a Luiz Vieira Negócios Imobiliários pelo WhatsApp, telefone ou e-mail. Atendimento na Barra da Tijuca, no Recreio dos Bandeirantes e em Angra dos Reis.",
   alternates: { canonical: "/contato" },
 };
 

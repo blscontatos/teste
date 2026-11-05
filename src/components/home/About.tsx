@@ -7,7 +7,7 @@ import { ArtPlaceholder } from "@/components/ui/ArtPlaceholder";
 
 export const DEFAULT_ABOUT = [
   "Mais do que intermediar negócios, acreditamos em entender pessoas, objetivos e momentos de vida.",
-  "Atuamos com dedicação na seleção de imóveis na Barra da Tijuca, Recreio dos Bandeirantes e regiões próximas, oferecendo um atendimento personalizado, transparente e direcionado às necessidades de cada cliente.",
+  "Atuamos com dedicação na seleção de imóveis na Barra da Tijuca, Recreio dos Bandeirantes, Angra dos Reis e regiões próximas, oferecendo um atendimento personalizado, transparente e direcionado às necessidades de cada cliente.",
   "Nosso compromisso é transformar a busca por um imóvel em uma experiência segura, simples e satisfatória.",
 ];
 

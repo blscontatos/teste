@@ -13,7 +13,7 @@ export function Footer({ settings, whatsappHref }: { settings: SiteSettings; wha
         <div className="space-y-6">
           <LogoFull width={190} className="h-auto w-[170px]" />
           <p className="max-w-xs text-sm leading-relaxed">
-            Imóveis selecionados na Barra da Tijuca, Recreio dos Bandeirantes e regiões próximas, com atendimento
+            Imóveis selecionados na Barra da Tijuca, Recreio dos Bandeirantes, Angra dos Reis e regiões próximas, com atendimento
             personalizado do primeiro contato à entrega das chaves.
           </p>
           {settings.creci && <p className="text-xs tracking-wider text-gold-light/80">CRECI {settings.creci}</p>}
@@ -42,7 +42,7 @@ export function Footer({ settings, whatsappHref }: { settings: SiteSettings; wha
         <div>
           <h3 className="mb-5 text-xs font-semibold tracking-[0.25em] text-gold-light uppercase">Regiões</h3>
           <ul className="space-y-3 text-sm">
-            {["Recreio dos Bandeirantes", "Barra da Tijuca", "Barra Olímpica"].map((b) => (
+            {["Recreio dos Bandeirantes", "Barra da Tijuca", "Barra Olímpica", "Angra dos Reis"].map((b) => (
               <li key={b}>
                 <Link href={`/imoveis?bairro=${encodeURIComponent(b)}`} className="transition-colors hover:text-gold-light">
                   Imóveis em {b}

@@ -44,6 +44,7 @@ export const NEIGHBORHOODS = [
   "Recreio dos Bandeirantes",
   "Barra da Tijuca",
   "Barra Olímpica",
+  "Angra dos Reis",
   "Jacarepaguá",
   "Vargem Grande",
   "Vargem Pequena",

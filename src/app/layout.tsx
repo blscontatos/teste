@@ -16,11 +16,11 @@ const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", displa
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
   title: {
-    default: `${COMPANY.name} | Imóveis na Barra da Tijuca e Recreio dos Bandeirantes`,
+    default: `${COMPANY.name} | Imóveis na Barra da Tijuca, Recreio e Angra dos Reis`,
     template: `%s | ${COMPANY.name}`,
   },
   description:
-    "Imóveis de alto padrão no Recreio dos Bandeirantes, Barra da Tijuca e Barra Olímpica. Casas, apartamentos e coberturas selecionados com atendimento personalizado no Rio de Janeiro.",
+    "Imóveis de alto padrão no Recreio dos Bandeirantes, Barra da Tijuca, Barra Olímpica e Angra dos Reis. Casas, apartamentos, coberturas e casas de praia selecionados com atendimento personalizado no Rio de Janeiro.",
   keywords: [
     "imóveis no Recreio dos Bandeirantes",
     "imóveis na Barra da Tijuca",
@@ -29,6 +29,9 @@ export const metadata: Metadata = {
     "imóveis de alto padrão no Rio de Janeiro",
     "coberturas na Barra da Tijuca",
     "corretor de imóveis Recreio",
+    "imóveis em Angra dos Reis",
+    "casas à venda em Angra dos Reis",
+    "casa de praia em Angra dos Reis",
   ],
   applicationName: COMPANY.name,
   openGraph: {

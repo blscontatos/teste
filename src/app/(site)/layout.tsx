@@ -16,7 +16,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     "@type": "RealEstateAgent",
     name: COMPANY.name,
     url: env.siteUrl,
-    areaServed: ["Recreio dos Bandeirantes", "Barra da Tijuca", "Barra Olímpica", "Rio de Janeiro"],
+    areaServed: ["Recreio dos Bandeirantes", "Barra da Tijuca", "Barra Olímpica", "Rio de Janeiro", "Angra dos Reis"],
     address: { "@type": "PostalAddress", addressLocality: "Rio de Janeiro", addressRegion: "RJ", addressCountry: "BR" },
     ...(settings.contact_phone ? { telephone: settings.contact_phone } : {}),
     ...(settings.contact_email ? { email: settings.contact_email } : {}),

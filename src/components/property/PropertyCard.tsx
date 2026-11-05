@@ -44,6 +44,7 @@ export function PropertyCard({ p, priority = false }: { p: Property; priority?: 
                 <span className="text-stone-light">•</span>
                 <MapPin className="h-3 w-3" />
                 {p.neighborhood}
+                {p.city && p.city !== "Rio de Janeiro" && p.city !== p.neighborhood ? ` · ${p.city}` : ""}
               </>
             )}
           </p>

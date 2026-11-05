@@ -24,7 +24,7 @@ export function Hero({
       <div aria-hidden className="pointer-events-none absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full bg-gold-pale/60 blur-3xl" />
       <div className="container-luxe relative grid items-center gap-12 lg:grid-cols-[1fr_1.08fr] lg:gap-16">
         <div className="max-w-xl">
-          <p className="eyebrow animate-fade-up">Barra da Tijuca · Recreio dos Bandeirantes</p>
+          <p className="eyebrow animate-fade-up">Barra da Tijuca · Recreio · Angra dos Reis</p>
           <h1 className="heading-xl mt-6 animate-fade-up text-balance [animation-delay:120ms]">{settings.hero_title}</h1>
           <p className="mt-7 max-w-lg animate-fade-up text-[17px] leading-relaxed text-ink/65 [animation-delay:240ms]">
             {settings.hero_subtitle}

@@ -10,7 +10,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Sobre",
   description:
-    "Conheça a Luiz Vieira Negócios Imobiliários: atendimento personalizado e curadoria de imóveis na Barra da Tijuca, Recreio dos Bandeirantes e Barra Olímpica.",
+    "Conheça a Luiz Vieira Negócios Imobiliários: atendimento personalizado e curadoria de imóveis na Barra da Tijuca, Recreio dos Bandeirantes, Barra Olímpica e Angra dos Reis.",
   alternates: { canonical: "/sobre" },
 };
 

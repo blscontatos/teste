@@ -20,11 +20,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   contact_email: "",
   contact_phone: "",
   creci: "",
-  address: "Recreio dos Bandeirantes · Barra da Tijuca — Rio de Janeiro, RJ",
+  address: "Recreio dos Bandeirantes · Barra da Tijuca · Angra dos Reis — RJ",
   instagram_url: "",
   hero_title: "Encontramos o imóvel que combina com a sua próxima conquista.",
   hero_subtitle:
-    "Uma curadoria exclusiva de imóveis na Barra da Tijuca e no Recreio dos Bandeirantes. Atendimento personalizado para quem busca mais do que um endereço.",
+    "Uma curadoria exclusiva de imóveis na Barra da Tijuca, no Recreio dos Bandeirantes e em Angra dos Reis. Atendimento personalizado para quem busca mais do que um endereço.",
   hero_image_url: "",
   about_title: "Mais do que intermediar negócios, acreditamos em entender pessoas.",
   about_text: "",
@@ -77,7 +77,7 @@ export async function searchProperties(f: PropertyFilters, limit = PAGE_SIZE) {
   const rent = f.negocio === "alugar";
   if (f.negocio === "comprar") q = q.in("business", ["venda", "ambos"]);
   if (rent) q = q.in("business", ["aluguel", "ambos"]);
-  if (f.bairro) q = q.eq("neighborhood", f.bairro);
+  if (f.bairro) q = q.or(`neighborhood.eq.${JSON.stringify(f.bairro)},city.eq.${JSON.stringify(f.bairro)}`);
   if (f.tipo) q = q.eq("type", f.tipo);
   if (f.quartos && Number(f.quartos) > 0) q = q.gte("bedrooms", Number(f.quartos));
   if (f.vagas && Number(f.vagas) > 0) q = q.gte("parking_spots", Number(f.vagas));
@@ -89,7 +89,7 @@ export async function searchProperties(f: PropertyFilters, limit = PAGE_SIZE) {
   }
   if (f.q) {
     const term = f.q.replace(/[%,()*\\]/g, " ").trim().slice(0, 80);
-    if (term) q = q.or(`code.ilike.%${term}%,title.ilike.%${term}%,neighborhood.ilike.%${term}%`);
+    if (term) q = q.or(`code.ilike.%${term}%,title.ilike.%${term}%,neighborhood.ilike.%${term}%,city.ilike.%${term}%`);
   }
 
   switch (f.ordem) {

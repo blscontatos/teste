@@ -6,7 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 export const metadata: Metadata = {
   title: "Vender seu imóvel",
   description:
-    "Venda seu imóvel na Barra da Tijuca ou no Recreio dos Bandeirantes com avaliação realista, divulgação qualificada e acompanhamento completo.",
+    "Venda seu imóvel na Barra da Tijuca, no Recreio dos Bandeirantes ou em Angra dos Reis com avaliação realista, divulgação qualificada e acompanhamento completo.",
   alternates: { canonical: "/vender" },
 };
 

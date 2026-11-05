@@ -48,7 +48,11 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
             </p>
           )}
         </Reveal>
-        <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          className={`mx-auto mt-16 grid gap-6 md:grid-cols-2 ${
+            list.length % 3 !== 0 && list.length % 2 === 0 ? "max-w-5xl" : "lg:grid-cols-3"
+          }`}
+        >
           {list.map((t, i) => (
             <Reveal key={t.id} delay={i * 100}>
               <figure className="relative flex h-full flex-col rounded-[28px] border border-line bg-white p-8 transition-all duration-700 ease-(--ease-luxe) hover:-translate-y-1 hover:shadow-[0_30px_60px_-35px_rgba(13,13,12,0.35)]">

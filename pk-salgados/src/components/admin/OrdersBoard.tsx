@@ -217,7 +217,7 @@ export function OrdersBoard() {
                     </p>
                     <div className="mt-2 flex items-center justify-between text-sm">
                       <span className="text-muted">Recebido {formatDateTime(d.created_at)}</span>
-                      {r.kind === "pedido" ? <span className="font-bold text-navy">{money(r.data.total)}</span> : r.data.has_inspiration && <span className="text-xs font-semibold text-gold-600">com foto</span>}
+                      {r.kind === "pedido" ? <span className="font-bold text-navy">{money(r.data.total)}</span> : r.data.has_inspiration && <span className="text-xs font-semibold text-gold-600">{r.data.inspiration_path ? "com foto" : "foto no WhatsApp"}</span>}
                     </div>
                   </button>
                 </motion.li>
@@ -349,7 +349,9 @@ function OrderDetail({
                 </div>
               </div>
             )}
-            {row.data.has_inspiration && !photo && <p className="rounded-2xl bg-cream px-3 py-2 text-muted">A foto de inspiração foi apagada.</p>}
+            {row.data.has_inspiration && !photo && (
+              <p className="rounded-2xl bg-gold-100 px-3 py-2 text-navy">📷 A foto não fica no site: veja na conversa do WhatsApp com o cliente.</p>
+            )}
           </div>
         )}
 

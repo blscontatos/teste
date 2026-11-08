@@ -112,6 +112,20 @@ export function SettingsEditor() {
 
           <Card className="space-y-4">
             <h2 className="font-semibold text-navy">Bolos de festa</h2>
+            <fieldset>
+              <legend className="label">Foto do modelo de inspiração</legend>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {([
+                  ["whatsapp", "Cliente envia pelo WhatsApp", "A foto não fica no site. O cliente manda na conversa logo após o pedido."],
+                  ["link", "Guardar no site e mandar link", "A foto fica no armazenamento e aparece aqui no painel."],
+                ] as const).map(([v, title, hint]) => (
+                  <button key={v} type="button" onClick={() => set("cake_photo_mode", v)} aria-pressed={s.cake_photo_mode === v} className={`rounded-2xl border-2 p-3 text-left transition ${s.cake_photo_mode === v ? "border-navy bg-navy text-white" : "border-navy/15 bg-white text-navy"}`}>
+                    <span className="block text-sm font-semibold">{title}</span>
+                    <span className={`block text-xs ${s.cake_photo_mode === v ? "text-white/75" : "text-muted"}`}>{hint}</span>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
             <div>
               <label className="label" htmlFor="cfg-bolo">Antecedência mínima (dias)</label>
               <input id="cfg-bolo" className="field w-32" inputMode="numeric" value={s.min_cake_notice_days} onChange={(e) => set("min_cake_notice_days", Number(e.target.value.replace(/\D/g, "")) || 0)} />

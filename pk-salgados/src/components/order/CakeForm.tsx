@@ -4,7 +4,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, ImagePlus, Loader2, X } from "lucide-react";
+import { Check, CheckCircle2, Download, ImagePlus, Loader2, Share2, X } from "lucide-react";
 import { useShop } from "./ShopProvider";
 import { PillButton } from "@/components/ui/PillButton";
 import { submitCakeOrder } from "@/app/actions/orders";
@@ -46,7 +46,10 @@ export function CakeForm({ product }: { product: Product }) {
   const [tried, setTried] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
-  const [done, setDone] = useState<{ number: number; wa: string } | null>(null);
+  const [done, setDone] = useState<{ number: number; wa: string; sendPhoto: boolean } | null>(null);
+  const [photoSent, setPhotoSent] = useState(false);
+  // "whatsapp": a foto fica só no celular do cliente e ele envia na conversa. "link": vai para o site.
+  const photoByWhatsApp = s.cake_photo_mode !== "link";
 
   const set = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
   const minDate = minDateLocal(s.min_cake_notice_days);
@@ -90,7 +93,7 @@ export function CakeForm({ product }: { product: Product }) {
     try {
       let path: string | undefined;
       let photoUrl: string | undefined;
-      if (hasInspiration && photo) {
+      if (hasInspiration && photo && !photoByWhatsApp) {
         const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
         path = `pedidos/${crypto.randomUUID()}.jpg`;
@@ -131,7 +134,7 @@ export function CakeForm({ product }: { product: Product }) {
         }),
       );
       if (win) win.location.href = wa;
-      setDone({ number: res.number, wa });
+      setDone({ number: res.number, wa, sendPhoto: !!hasInspiration && !!photo && photoByWhatsApp });
     } catch (e) {
       win?.close();
       setError(e instanceof Error ? e.message : "Não foi possível enviar. Tente novamente.");
@@ -140,19 +143,85 @@ export function CakeForm({ product }: { product: Product }) {
     }
   };
 
+  // Envia a foto pela tela de compartilhar do celular (o cliente escolhe a conversa da PK).
+  const sharePhoto = async () => {
+    if (!photo || !done) return;
+    const file = new File([photo], `modelo-bolo-pedido-${done.number}.jpg`, { type: "image/jpeg" });
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], text: `Foto do modelo do bolo — pedido nº ${done.number}` });
+        setPhotoSent(true);
+      } catch {
+        /* o cliente fechou a tela de compartilhar */
+      }
+    } else downloadPhoto(file);
+  };
+  const downloadPhoto = (file?: File) => {
+    if (!photo || !done) return;
+    const f = file ?? new File([photo], `modelo-bolo-pedido-${done.number}.jpg`, { type: "image/jpeg" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(f);
+    a.download = f.name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    setPhotoSent(true);
+  };
+  const canShareFiles =
+    typeof navigator !== "undefined" &&
+    !!navigator.canShare?.({ files: [new File([new Blob()], "x.jpg", { type: "image/jpeg" })] });
+
   if (done) {
     return (
-      <div className="flex flex-col items-center px-6 py-12 text-center">
+      <div className="flex flex-col items-center px-6 py-10 text-center">
         <motion.span initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 260, damping: 15 }}>
           <CheckCircle2 className="h-20 w-20 text-gold" />
         </motion.span>
-        <p className="mt-4 font-title text-3xl text-navy">Encomenda recebida!</p>
+        <p className="mt-4 font-title text-3xl text-navy">{done.sendPhoto ? "Quase lá!" : "Encomenda recebida!"}</p>
         <p className="mt-3 rounded-2xl bg-white px-6 py-3 font-title text-3xl text-navy shadow-card">nº {done.number}</p>
-        <p className="mt-4 max-w-xs text-sm text-muted">
-          Abrimos o WhatsApp com todos os detalhes. Toque em enviar para combinarmos valores e confirmar a sua encomenda.
-        </p>
-        <PillButton className="mt-6" href={done.wa} whatsapp>Abrir WhatsApp novamente</PillButton>
-        <button type="button" onClick={close} className="mt-4 text-sm font-semibold text-navy underline">Voltar ao site</button>
+
+        {done.sendPhoto ? (
+          <ol className="mt-6 w-full max-w-sm space-y-3 text-left">
+            <li className="flex gap-3 rounded-3xl bg-white p-4 shadow-card">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gold text-navy"><Check className="h-4 w-4" /></span>
+              <div className="flex-1">
+                <p className="font-semibold text-navy">1. Mensagem com os dados</p>
+                <p className="text-sm text-muted">Abrimos o WhatsApp da PK com tudo preenchido. Toque em enviar.</p>
+                <a href={done.wa} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-sm font-semibold text-navy underline">Abrir WhatsApp novamente</a>
+              </div>
+            </li>
+            <li className={`flex gap-3 rounded-3xl p-4 shadow-card ${photoSent ? "bg-white" : "bg-gold-100 ring-2 ring-gold"}`}>
+              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full font-bold ${photoSent ? "bg-gold text-navy" : "bg-navy text-white"}`}>
+                {photoSent ? <Check className="h-4 w-4" /> : "2"}
+              </span>
+              <div className="flex-1">
+                <p className="font-semibold text-navy">2. Foto do modelo</p>
+                {canShareFiles ? (
+                  <>
+                    <p className="text-sm text-muted">Toque no botão e escolha a conversa da <strong>PK Salgados</strong> no WhatsApp.</p>
+                    <PillButton className="mt-3 w-full" onClick={sharePhoto}>
+                      <Share2 className="h-4 w-4" /> Enviar a foto do modelo
+                    </PillButton>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted">Baixe a foto e anexe pelo clipe 📎 na conversa da PK no WhatsApp.</p>
+                    <PillButton className="mt-3 w-full" onClick={() => downloadPhoto()}>
+                      <Download className="h-4 w-4" /> Baixar a foto
+                    </PillButton>
+                  </>
+                )}
+              </div>
+            </li>
+          </ol>
+        ) : (
+          <>
+            <p className="mt-4 max-w-xs text-sm text-muted">
+              Abrimos o WhatsApp com todos os detalhes. Toque em enviar para combinarmos valores e confirmar a sua encomenda.
+            </p>
+            <PillButton className="mt-6" href={done.wa} whatsapp>Abrir WhatsApp novamente</PillButton>
+          </>
+        )}
+        <button type="button" onClick={close} className="mt-5 text-sm font-semibold text-navy underline">Voltar ao site</button>
       </div>
     );
   }
@@ -265,7 +334,7 @@ export function CakeForm({ product }: { product: Product }) {
         <PillButton type="submit" className="w-full" size="lg" whatsapp disabled={sending || processing || s.store_closed}>
           {s.store_closed ? "Loja fechada hoje" : sending ? "Enviando…" : "Enviar encomenda pelo WhatsApp"}
         </PillButton>
-        <p className="text-center text-[0.7rem] text-muted">Seus dados e a foto são usados só para esta encomenda.</p>
+        <p className="text-center text-[0.7rem] text-muted">{photoByWhatsApp && hasInspiration ? "A foto não é enviada ao site: você manda direto no WhatsApp da PK no próximo passo." : "Seus dados e a foto são usados só para esta encomenda."}</p>
       </form>
     </div>
   );

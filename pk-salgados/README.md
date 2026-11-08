@@ -4,7 +4,9 @@ Site de pedidos da **PK Salgados e Doces** com painel para as donas editarem tud
 
 - **Site público** (`/`): cabeçalho fixo com sacola, destaque, carrosséis de Salgados e Doces, Promoções e Combos, Depoimentos, Quem Somos e rodapé.
 - **Pedidos**: sacola, escolha de porção, sabores (com limite), congelado ou frito, envio **pelo site** (cai direto no painel) ou **pelo WhatsApp** (abre o WhatsApp da loja com o pedido pronto; o pedido também fica salvo no painel).
-- **Bolo de festa**: formulário de encomenda com foto de inspiração (JPG, PNG ou HEIC até 10 MB, comprimida antes do envio). A foto vai para o armazenamento e o **link** segue na mensagem do WhatsApp.
+- **Bolo de festa**: formulário de encomenda com foto de inspiração (JPG, PNG ou HEIC até 10 MB, comprimida no celular). Dois modos, escolhidos em *Configurações → Bolos de festa*:
+  - **Cliente envia pelo WhatsApp** (padrão): a foto **não vai para o site**. Depois de enviar o formulário, o WhatsApp da PK abre com os dados e um segundo botão, “Enviar a foto do modelo”, abre a tela de compartilhar do celular com a foto. O cliente escolhe a conversa da PK e envia. No computador, ele baixa a foto e anexa pelo clipe.
+  - **Guardar no site e mandar link**: a foto vai para o armazenamento, aparece no painel e segue como link na mensagem.
 - **Painel** (`/admin`): pedidos em tempo real com som e notificação, produtos, sabores, porções, promoções, textos e imagens (com prévia antes de publicar), depoimentos e configurações (inclusive “loja fechada”).
 
 Tecnologias: Next.js 15 (App Router) + TypeScript, Tailwind CSS 4, Framer Motion, Supabase (banco, login, fotos, tempo real) e hospedagem na Vercel.
@@ -25,7 +27,7 @@ Leva uns 30 minutos. Você vai precisar de: uma conta no **GitHub** (onde o cód
    - Clique em **Create new project** e espere uns 2 minutos.
 3. No menu da esquerda, abra **SQL Editor** → **New query**.
 4. Abra o arquivo [`supabase/migrations/20261108000000_init.sql`](supabase/migrations/20261108000000_init.sql) aqui no GitHub, copie **todo** o conteúdo, cole no editor e clique em **Run**. Deve aparecer “Success”.
-5. Faça o mesmo com o arquivo [`supabase/seed.sql`](supabase/seed.sql) (é o cardápio do folder, as categorias, 3 combos de exemplo e os textos iniciais).
+5. Faça o mesmo, **nesta ordem**, com [`supabase/migrations/20261109000000_foto_bolo_whatsapp.sql`](supabase/migrations/20261109000000_foto_bolo_whatsapp.sql) e depois com [`supabase/seed.sql`](supabase/seed.sql) (é o cardápio do folder, as categorias, 3 combos de exemplo e os textos iniciais).
 6. Vá em **Authentication → Sign In / Providers** e **desligue** “Allow new users to sign up” (assim só as donas têm acesso).
 7. Vá em **Authentication → URL Configuration**:
    - **Site URL:** o endereço do site (por enquanto, o da Vercel, que você vai ganhar no passo 3, ex.: `https://pk-salgados.vercel.app`).
@@ -121,10 +123,10 @@ tests/e2e.mjs          teste de ponta a ponta (site + painel)
 - **RLS**: o público só lê o conteúdo visível. Ninguém de fora lê pedidos nem altera o cardápio. Só quem está em `admin_users` edita e vê pedidos.
 - Pedidos entram **somente** pelas funções `create_order` e `create_cake_order`, que **recalculam os preços** no banco (o navegador não define valores), conferem porções, sabores esgotados, limite de sabores, antecedência e se a loja está aberta.
 - **Anti-spam**: campo-isca invisível, limite por conexão no servidor e no banco (5 pedidos por telefone / 20 por conexão a cada 30 min). O IP nunca é guardado, apenas um resumo irreversível.
-- Fotos de inspiração: o cliente só pode **enviar** (não lista, não troca, não apaga). O nome do arquivo é aleatório, então só quem recebe o link vê a foto.
+- Fotos de inspiração: no modo padrão (WhatsApp) o site **recusa qualquer envio** de foto de bolo. No modo link, o cliente só pode **enviar** (não lista, não troca, não apaga). O nome do arquivo é aleatório, então só quem recebe o link vê a foto.
 - **Fotos que não são mais usadas** (trocadas, removidas ou de produtos excluídos) são apagadas do armazenamento automaticamente depois de 24 horas. Em *Configurações → Armazenamento de fotos* dá para ver o espaço usado, apagar na hora as fotos sem uso e apagar fotos de bolos antigos. Cada encomenda de bolo também tem o botão **Apagar foto**.
 - **Promoções vencidas** somem sozinhas: o banco só entrega promoções dentro do período, e a página se atualiza a cada minuto.
-- **WhatsApp**: o link usa `api.whatsapp.com/send` (equivalente ao `wa.me`), porque o redirecionamento do `wa.me` estraga emojis como 🎂. O link só aceita texto, por isso a foto vai como link.
+- **WhatsApp**: o link usa `api.whatsapp.com/send` (equivalente ao `wa.me`), porque o redirecionamento do `wa.me` estraga emojis como 🎂. O link só aceita texto. Por isso a foto vai pela tela de compartilhar do celular (modo padrão) ou como link (modo link).
 
 **Desenvolvimento local**
 

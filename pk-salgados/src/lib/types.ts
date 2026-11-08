@@ -7,6 +7,7 @@ export type OrderChannel = "site" | "whatsapp";
 export type Fulfillment = "retirada" | "entrega";
 export type PaymentMethod = "pix" | "dinheiro" | "cartao";
 export type FryOption = "congelado" | "frito";
+export type CakePhotoMode = "whatsapp" | "link";
 
 export interface Settings {
   whatsapp: string;
@@ -26,6 +27,8 @@ export interface Settings {
   cake_fillings: string[];
   store_closed: boolean;
   store_closed_message: string;
+  /** 'whatsapp' = cliente envia a foto do bolo no WhatsApp; 'link' = foto guardada no site e enviada como link */
+  cake_photo_mode: CakePhotoMode;
 }
 
 export interface Category {

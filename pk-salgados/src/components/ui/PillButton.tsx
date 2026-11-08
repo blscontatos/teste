@@ -29,7 +29,7 @@ export function PillButton({ variant = "navy", arrow, whatsapp, size = "md", cla
   const inner = (
     <>
       {whatsapp && <WhatsAppIcon className="h-5 w-5" />}
-      <span>{children}</span>
+      <span className="inline-flex items-center gap-2">{children}</span>
       {arrow && <ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />}
     </>
   );

@@ -79,8 +79,7 @@ export async function submitOrder(
   return { ok: true, number: r.number, total: Number(r.total), subtotal: Number(r.subtotal), delivery_fee: Number(r.delivery_fee) };
 }
 
-const cakeSchema = z
-  .object({
+const cakeSchema = z.object({
     product_id: z.string().uuid().optional(),
     customer_name: z.string().trim().min(3, "Informe seu nome completo.").max(120),
     phone,
@@ -93,8 +92,8 @@ const cakeSchema = z
     has_inspiration: z.boolean(),
     inspiration_path: z.string().regex(/^pedidos\/[0-9a-f-]{36}\.(jpg|jpeg|png|webp)$/).optional(),
     website: z.string().max(0, "Envio bloqueado.").optional(),
-  })
-  .refine((v) => !v.has_inspiration || v.inspiration_path, { message: "Envie a foto do modelo de inspiração." });
+  });
+// A exigência da foto depende do modo (Configurações) e é conferida pelo banco.
 
 export type CakeInput = z.input<typeof cakeSchema>;
 

@@ -59,7 +59,7 @@ export function cakeMessage(o: {
   filling: string;
   theme_notes: string;
   has_inspiration: boolean;
-  photo_url?: string;
+  photo_url?: string; // modo "link"; sem link = o cliente envia a foto na conversa
 }) {
   return [
     `🎂 *Nova encomenda de bolo — PK Salgados e Doces*`,
@@ -69,7 +69,9 @@ export function cakeMessage(o: {
     `Data/horário: ${formatDateTime(o.desired_at)}`,
     `Tamanho: ${o.size || "—"} | Massa: ${o.dough || "—"} | Recheio: ${o.filling || "—"}`,
     `Tema/observações: ${o.theme_notes || "—"}`,
-    `Modelo de inspiração: ${o.has_inspiration ? `Sim — foto: ${o.photo_url}` : "Não"}`,
+    `Modelo de inspiração: ${
+      !o.has_inspiration ? "Não" : o.photo_url ? `Sim — foto: ${o.photo_url}` : "Sim — vou enviar a foto em seguida nesta conversa 📷"
+    }`,
     `Pedido nº ${o.number}`,
   ].join("\n");
 }

@@ -38,6 +38,7 @@ export const defaultSettings: Settings = {
   cake_fillings: ["Brigadeiro", "Beijinho", "Doce de leite", "Ninho com morango", "Abacaxi com coco", "Prestígio"],
   store_closed: false,
   store_closed_message: "Hoje não estamos aceitando pedidos. Voltamos em breve!",
+  cake_photo_mode: "whatsapp",
 };
 
 export const defaultContent: SiteContent = {

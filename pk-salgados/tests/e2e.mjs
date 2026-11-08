@@ -15,10 +15,55 @@ let failures = 0;
 const txt = async (loc) => (await loc.textContent()).replace(/\u00a0/g, " ");
 const ok = (cond, msg) => { console.log(`${cond ? "✔" : "✘"} ${msg}`); if (!cond) failures++; };
 
+const ANON = "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH";
+// Chave secreta lida do .env.local (nunca escrita no código).
+const envFile = existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "";
+const service = process.env.SUPABASE_SERVICE_ROLE_KEY || envFile.match(/^SUPABASE_SERVICE_ROLE_KEY=(.*)$/m)?.[1]?.trim();
+if (!service) throw new Error("Defina SUPABASE_SERVICE_ROLE_KEY (no .env.local) para o teste de fotos.");
+const sbUrl = "http://127.0.0.1:54321";
+
+const listFiles = async (bucket, prefix) => {
+  const r = await fetch(`${sbUrl}/storage/v1/object/list/${bucket}`, { method: "POST", headers: { apikey: service, Authorization: `Bearer ${service}`, "Content-Type": "application/json" }, body: JSON.stringify({ prefix, limit: 1000 }) });
+  return (await r.json()).map((f) => f.name);
+};
+
+// Simula a tela de compartilhar do celular e guarda o que foi compartilhado.
+const fakeShare = () => {
+  window.__shared = [];
+  Object.defineProperty(navigator, "canShare", { configurable: true, value: (d) => !!d?.files?.length });
+  Object.defineProperty(navigator, "share", { configurable: true, value: async (d) => { window.__shared.push(...d.files.map((f) => ({ name: f.name, type: f.type, size: f.size }))); } });
+};
+
+/** Preenche e envia uma encomenda de bolo com foto; devolve o texto da mensagem do WhatsApp. */
+async function cakeOrder(page, name) {
+  await page.goto(BASE, { waitUntil: "networkidle" });
+  await page.locator("#doces").scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "Ver Bolos de Festa" }).click();
+  const cake = page.getByRole("dialog");
+  await cake.getByLabel("Nome completo *").fill(name);
+  await cake.getByLabel("Telefone / WhatsApp *").fill(`2195555${String(Math.floor(Math.random() * 9000) + 1000)}`);
+  await cake.getByLabel("Endereço completo *").fill("Rua Teste, 123 - Guadalupe");
+  await cake.getByLabel("Data *").fill(new Date(Date.now() + 5 * 86400_000).toISOString().slice(0, 10));
+  await cake.getByLabel("Horário *").fill("14:00");
+  await cake.getByLabel("Tamanho / quantidade de pessoas").selectOption({ index: 2 });
+  await cake.getByRole("button", { name: "Sim" }).click();
+  await cake.getByRole("button", { name: "Enviar encomenda pelo WhatsApp" }).click();
+  const required = await cake.getByText("Envie a foto do modelo de inspiração.").isVisible();
+  await page.setInputFiles("#b-foto", photo);
+  await cake.getByAltText("Prévia da foto de inspiração").waitFor({ timeout: 15000 });
+  const [popup] = await Promise.all([page.waitForEvent("popup"), cake.getByRole("button", { name: "Enviar encomenda pelo WhatsApp" }).click()]);
+  await page.getByText(/Quase lá!|Encomenda recebida!/).waitFor({ timeout: 20000 });
+  await popup.waitForURL(/whatsapp/, { timeout: 15000 }).catch(() => {});
+  const msg = decodeURIComponent(popup.url().replace(/\+/g, " "));
+  await popup.close();
+  return { msg, required };
+}
+
 const browser = await chromium.launch();
 
 // ---------------------------------------------------------------- Cliente (celular)
 const ctx = await browser.newContext({ ...devices["iPhone 13"] });
+await ctx.addInitScript(fakeShare);
 const page = await ctx.newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
@@ -78,34 +123,18 @@ ok(/api\.whatsapp\.com.*5521982712575/.test(waUrl) && waUrl.includes("🛍️ *N
 await popup.close();
 await page.getByRole("button", { name: "Voltar ao site" }).click();
 
-// Bolo de festa com foto obrigatória
-await page.getByRole("button", { name: "Ver Bolos de Festa" }).click();
-const cake = page.getByRole("dialog");
-await cake.getByLabel("Nome completo *").fill("Ana Bolo");
-await cake.getByLabel("Telefone / WhatsApp *").fill("21955554444");
-await cake.getByLabel("Endereço completo *").fill("Rua Teste, 123 - Guadalupe");
-const cd = new Date(Date.now() + 5 * 86400_000).toISOString().slice(0, 10);
-await cake.getByLabel("Data *").fill(cd);
-await cake.getByLabel("Horário *").fill("14:00");
-await cake.getByLabel("Tamanho / quantidade de pessoas").selectOption({ index: 2 });
-await cake.getByRole("button", { name: "Sim" }).click();
-await cake.getByRole("button", { name: "Enviar encomenda pelo WhatsApp" }).click();
-ok(await cake.getByText("Envie a foto do modelo de inspiração.").isVisible(), "Foto obrigatória quando há inspiração");
-await page.setInputFiles("#b-foto", photo);
-await cake.getByAltText("Prévia da foto de inspiração").waitFor({ timeout: 15000 });
-ok(true, "Prévia da foto aparece (compressão ok)");
-const [popup2] = await Promise.all([page.waitForEvent("popup"), cake.getByRole("button", { name: "Enviar encomenda pelo WhatsApp" }).click()]);
-await page.getByText("Encomenda recebida!").waitFor({ timeout: 20000 });
-await popup2.waitForURL(/wa\.me|whatsapp/, { timeout: 15000 }).catch(() => {});
-const cakeMsg = decodeURIComponent(popup2.url().replace(/\+/g, " "));
-console.log("   URL bolo:", cakeMsg.slice(0, 400));
-ok(cakeMsg.includes("🎂 *Nova encomenda de bolo") && cakeMsg.includes("/storage/v1/object/public/inspiration-photos/pedidos/"), "Mensagem do bolo com link da foto");
-const photoUrl = cakeMsg.match(/https?:\/\/[^\s&]+inspiration-photos\/pedidos\/[^\s&]+\.jpg/)?.[0];
-if (photoUrl) {
-  const r = await fetch(photoUrl);
-  ok(r.ok && r.headers.get("content-type")?.includes("image"), "Foto de inspiração acessível pelo link");
-}
-await popup2.close();
+// Bolo de festa — modo padrão: o cliente envia a foto no WhatsApp (não vai para o site)
+const cakeFilesBefore = await listFiles("inspiration-photos", "pedidos");
+const w = await cakeOrder(page, "Ana Bolo");
+ok(w.required, "Foto obrigatória quando há inspiração");
+ok(w.msg.includes("🎂 *Nova encomenda de bolo") && w.msg.includes("vou enviar a foto em seguida") && !w.msg.includes("inspiration-photos"), "Mensagem sem link e avisando que a foto vem na conversa");
+ok(await page.getByText("Quase lá!").isVisible(), "Tela com os 2 passos (mensagem + foto)");
+await page.getByRole("button", { name: "Enviar a foto do modelo" }).click();
+const shared = await page.evaluate(() => window.__shared);
+ok(shared.length === 1 && shared[0].type === "image/jpeg" && shared[0].size > 0, "Foto entregue à tela de compartilhar do celular");
+ok((await listFiles("inspiration-photos", "pedidos")).length === cakeFilesBefore.length, "Nenhuma foto foi enviada ao site");
+const up = await fetch(`${sbUrl}/storage/v1/object/inspiration-photos/pedidos/${crypto.randomUUID()}.jpg`, { method: "POST", headers: { apikey: ANON, Authorization: `Bearer ${ANON}`, "Content-Type": "image/jpeg" }, body: new Uint8Array([1, 2, 3]) });
+ok(!up.ok, "Upload direto de foto de bolo é recusado no modo WhatsApp");
 ok(!errors.length, `Sem erros de JavaScript no site${errors.length ? ": " + errors.join(" | ") : ""}`);
 await ctx.close();
 
@@ -146,7 +175,7 @@ ok((await admin.locator("li").count()) > before, `Tempo real: pedido nº ${rt.nu
 await admin.selectOption('select[aria-label="Tipo de pedido"]', "bolo");
 await admin.getByRole("button", { name: /^Todos/ }).click();
 await admin.getByText("Ana Bolo").first().click();
-ok(await admin.getByAltText("Foto de inspiração enviada pelo cliente").waitFor({ timeout: 8000 }).then(() => true, () => false), "Foto de inspiração no painel");
+ok(await admin.getByText("A foto não fica no site").waitFor({ timeout: 8000 }).then(() => true, () => false), "Painel avisa que a foto está no WhatsApp");
 await admin.keyboard.press("Escape");
 
 // Configurações: loja fechada → aviso no site
@@ -190,15 +219,7 @@ await admin.getByRole("button", { name: "Salvar produto" }).click();
 await admin.getByText("Produto salvo!").last().waitFor();
 
 // ---------------------------------------------------------------- Fotos: apagar
-const sbUrl = "http://127.0.0.1:54321";
-// Chave secreta lida do .env.local (nunca escrita no código).
-const envFile = existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "";
-const service = process.env.SUPABASE_SERVICE_ROLE_KEY || envFile.match(/^SUPABASE_SERVICE_ROLE_KEY=(.*)$/m)?.[1]?.trim();
-if (!service) throw new Error("Defina SUPABASE_SERVICE_ROLE_KEY (no .env.local) para o teste de fotos.");
-const listFiles = async (bucket, prefix) => {
-  const r = await fetch(`${sbUrl}/storage/v1/object/list/${bucket}`, { method: "POST", headers: { apikey: service, Authorization: `Bearer ${service}`, "Content-Type": "application/json" }, body: JSON.stringify({ prefix, limit: 1000 }) });
-  return (await r.json()).map((f) => f.name);
-};
+
 // 1) Foto enviada e salva num produto (em uso)
 await admin.goto(`${BASE}/admin/produtos/00000000-0000-4000-8000-000200000003`);
 await admin.locator('input[type="file"]').nth(1).setInputFiles(photo);
@@ -216,16 +237,33 @@ await admin.getByText(/foto\(s\) apagada\(s\)/).waitFor();
 const after = await listFiles("site-images", "produtos");
 ok(!after.includes("sem-uso-teste.webp"), "Botão apaga a foto que não é usada");
 ok(usedFiles.length > 0 && usedFiles.every((f) => after.includes(f)), "Foto em uso no produto NÃO é apagada");
-// 3) Apagar a foto de inspiração de um bolo
+// 3) Modo "Guardar no site e mandar link" (trocado nas Configurações)
+await admin.goto(`${BASE}/admin/configuracoes`);
+await admin.getByRole("button", { name: /Guardar no site e mandar link/ }).click();
+await admin.getByRole("button", { name: "Salvar configurações" }).click();
+await admin.getByText("Configurações salvas!").last().waitFor();
+const mctx = await browser.newContext({ ...devices["iPhone 13"] });
+const mpage = await mctx.newPage();
+const l = await cakeOrder(mpage, "Bia Link");
+await mctx.close();
+const linkUrl = l.msg.match(/https?:\/\/[^\s&]+inspiration-photos\/pedidos\/[^\s&]+\.jpg/)?.[0];
+ok(!!linkUrl && (await fetch(linkUrl)).ok, "Modo link: foto vai para o site e segue como link");
 const cakesBefore = await listFiles("inspiration-photos", "pedidos");
 await admin.goto(`${BASE}/admin`);
 await admin.selectOption('select[aria-label="Tipo de pedido"]', "bolo");
 await admin.getByRole("button", { name: /^Todos/ }).click();
-await admin.getByText("Ana Bolo").first().click();
+await admin.getByText("Bia Link").first().click();
+ok(await admin.getByAltText("Foto de inspiração enviada pelo cliente").waitFor({ timeout: 8000 }).then(() => true, () => false), "Modo link: foto aparece no painel");
 await admin.getByRole("button", { name: "Apagar foto" }).click();
-await admin.getByText("A foto de inspiração foi apagada.").waitFor();
+await admin.getByText("A foto não fica no site").waitFor();
 const cakesAfter = await listFiles("inspiration-photos", "pedidos");
 ok(cakesAfter.length === cakesBefore.length - 1, "Foto do bolo apagada do armazenamento");
+await admin.keyboard.press("Escape");
+// volta ao padrão
+await admin.goto(`${BASE}/admin/configuracoes`);
+await admin.getByRole("button", { name: /Cliente envia pelo WhatsApp/ }).click();
+await admin.getByRole("button", { name: "Salvar configurações" }).click();
+await admin.getByText("Configurações salvas!").last().waitFor();
 
 await browser.close();
 console.log(failures ? `\n${failures} falha(s)` : "\nTudo certo!");

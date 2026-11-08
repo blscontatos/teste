@@ -1,0 +1,7 @@
+"use client";
+// Respeita "reduzir movimento" do celular/computador em todas as animações.
+import { MotionConfig } from "framer-motion";
+
+export function MotionProvider({ children }: { children: React.ReactNode }) {
+  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
+}

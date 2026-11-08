@@ -122,6 +122,7 @@ tests/e2e.mjs          teste de ponta a ponta (site + painel)
 - Pedidos entram **somente** pelas funções `create_order` e `create_cake_order`, que **recalculam os preços** no banco (o navegador não define valores), conferem porções, sabores esgotados, limite de sabores, antecedência e se a loja está aberta.
 - **Anti-spam**: campo-isca invisível, limite por conexão no servidor e no banco (5 pedidos por telefone / 20 por conexão a cada 30 min). O IP nunca é guardado, apenas um resumo irreversível.
 - Fotos de inspiração: o cliente só pode **enviar** (não lista, não troca, não apaga). O nome do arquivo é aleatório, então só quem recebe o link vê a foto.
+- **Fotos que não são mais usadas** (trocadas, removidas ou de produtos excluídos) são apagadas do armazenamento automaticamente depois de 24 horas. Em *Configurações → Armazenamento de fotos* dá para ver o espaço usado, apagar na hora as fotos sem uso e apagar fotos de bolos antigos. Cada encomenda de bolo também tem o botão **Apagar foto**.
 - **Promoções vencidas** somem sozinhas: o banco só entrega promoções dentro do período, e a página se atualiza a cada minuto.
 - **WhatsApp**: o link usa `api.whatsapp.com/send` (equivalente ao `wa.me`), porque o redirecionamento do `wa.me` estraga emojis como 🎂. O link só aceita texto, por isso a foto vai como link.
 

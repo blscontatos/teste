@@ -2,7 +2,8 @@
 // Pedidos em tempo real: lista, filtros, aviso sonoro + notificação, detalhes e status.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, BellRing, Cake, Download, Globe, Phone, Printer, RefreshCw, ZoomIn } from "lucide-react";
+import { Bell, BellRing, Cake, Download, Globe, Phone, Printer, RefreshCw, Trash2, ZoomIn } from "lucide-react";
+import { deleteCakePhoto } from "@/app/admin/actions";
 import { createClient } from "@/lib/supabase/client";
 import { WhatsAppIcon } from "@/components/ui/icons";
 import { Btn, Modal, PageHeader, useToast } from "./ui";
@@ -226,14 +227,45 @@ export function OrdersBoard() {
         </ul>
       )}
 
-      <AnimatePresence>{open && <OrderDetail row={open} onClose={() => setOpen(null)} onStatus={changeStatus} />}</AnimatePresence>
+      <AnimatePresence>{open && <OrderDetail
+            row={open}
+            onClose={() => setOpen(null)}
+            onStatus={changeStatus}
+            onPhotoDeleted={(id) => {
+              const clear = (r: Row): Row => (r.kind === "bolo" && r.data.id === id ? { ...r, data: { ...r.data, inspiration_path: null } } : r);
+              setRows((list) => list.map(clear));
+              setOpen((o) => (o ? clear(o) : o));
+            }}
+          />}</AnimatePresence>
     </div>
   );
 }
 
-function OrderDetail({ row, onClose, onStatus }: { row: Row; onClose: () => void; onStatus: (r: Row, s: OrderStatus) => void }) {
+function OrderDetail({
+  row,
+  onClose,
+  onStatus,
+  onPhotoDeleted,
+}: {
+  row: Row;
+  onClose: () => void;
+  onStatus: (r: Row, s: OrderStatus) => void;
+  onPhotoDeleted: (id: string) => void;
+}) {
   const d = row.data;
+  const toast = useToast();
   const [zoom, setZoom] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const removePhoto = async () => {
+    if (!confirm("Apagar a foto de inspiração desta encomenda? Ela some do painel e o link enviado no WhatsApp para de funcionar.")) return;
+    setDeleting(true);
+    const res = await deleteCakePhoto(d.id);
+    setDeleting(false);
+    if (!res.ok) return toast(res.error ?? "Não foi possível apagar a foto.", "erro");
+    onPhotoDeleted(d.id);
+    toast("Foto apagada");
+  };
   const photo =
     row.kind === "bolo" && row.data.inspiration_path
       ? createClient().storage.from("inspiration-photos").getPublicUrl(row.data.inspiration_path).data.publicUrl
@@ -310,12 +342,14 @@ function OrderDetail({ row, onClose, onStatus }: { row: Row; onClose: () => void
                   <img src={photo} alt="Foto de inspiração enviada pelo cliente" className="max-h-72 w-full object-contain bg-cream" />
                   <span className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full bg-navy/80 text-white"><ZoomIn className="h-4 w-4" /></span>
                 </button>
-                <div className="mt-2 flex gap-2">
+                <div className="mt-2 flex flex-wrap gap-2">
                   <Btn variant="outline" onClick={() => setZoom(true)}><ZoomIn className="h-4 w-4" /> Ampliar</Btn>
                   <Btn variant="outline" onClick={download}><Download className="h-4 w-4" /> Baixar foto</Btn>
+                  <Btn variant="danger" onClick={removePhoto} disabled={deleting}><Trash2 className="h-4 w-4" /> {deleting ? "Apagando…" : "Apagar foto"}</Btn>
                 </div>
               </div>
             )}
+            {row.data.has_inspiration && !photo && <p className="rounded-2xl bg-cream px-3 py-2 text-muted">A foto de inspiração foi apagada.</p>}
           </div>
         )}
 

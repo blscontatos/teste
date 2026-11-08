@@ -7,6 +7,7 @@ import { defaultSettings } from "@/lib/defaults";
 import { maskPhone } from "@/lib/format";
 import type { Settings } from "@/lib/types";
 import { Btn, Card, PageHeader, Switch, TagListEditor, toNumber, useToast } from "./ui";
+import { StorageCard } from "./StorageCard";
 
 export function SettingsEditor() {
   const sb = useMemo(() => createClient(), []);
@@ -120,6 +121,10 @@ export function SettingsEditor() {
             <div><p className="label">Recheios</p><TagListEditor value={s.cake_fillings} onChange={(v) => set("cake_fillings", v)} placeholder="Ex.: Nozes" /></div>
           </Card>
         </div>
+      </div>
+
+      <div className="mt-5">
+        <StorageCard />
       </div>
 
       <div className="fixed inset-x-0 bottom-16 z-20 border-t border-navy/10 bg-white/95 px-4 py-3 backdrop-blur lg:bottom-0 lg:left-64">

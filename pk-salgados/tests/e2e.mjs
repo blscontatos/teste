@@ -5,6 +5,7 @@ import { createRequire } from "node:module";
 // Usa o Playwright instalado no projeto ou no sistema.
 const { chromium, devices } = createRequire(import.meta.url)("playwright");
 import { fileURLToPath } from "node:url";
+import { existsSync, readFileSync } from "node:fs";
 
 const BASE = process.argv[2] || "http://localhost:3000";
 const EMAIL = process.env.E2E_EMAIL || "dona@pksalgados.com.br";
@@ -187,6 +188,44 @@ ok(await site.getByRole("button", { name: /Muçarela.*esgotado/i }).isDisabled()
 await admin.getByRole("button", { name: "Esgotado" }).first().click();
 await admin.getByRole("button", { name: "Salvar produto" }).click();
 await admin.getByText("Produto salvo!").last().waitFor();
+
+// ---------------------------------------------------------------- Fotos: apagar
+const sbUrl = "http://127.0.0.1:54321";
+// Chave secreta lida do .env.local (nunca escrita no código).
+const envFile = existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "";
+const service = process.env.SUPABASE_SERVICE_ROLE_KEY || envFile.match(/^SUPABASE_SERVICE_ROLE_KEY=(.*)$/m)?.[1]?.trim();
+if (!service) throw new Error("Defina SUPABASE_SERVICE_ROLE_KEY (no .env.local) para o teste de fotos.");
+const listFiles = async (bucket, prefix) => {
+  const r = await fetch(`${sbUrl}/storage/v1/object/list/${bucket}`, { method: "POST", headers: { apikey: service, Authorization: `Bearer ${service}`, "Content-Type": "application/json" }, body: JSON.stringify({ prefix, limit: 1000 }) });
+  return (await r.json()).map((f) => f.name);
+};
+// 1) Foto enviada e salva num produto (em uso)
+await admin.goto(`${BASE}/admin/produtos/00000000-0000-4000-8000-000200000003`);
+await admin.locator('input[type="file"]').nth(1).setInputFiles(photo);
+await admin.getByRole("button", { name: "Usar sem recortar" }).click();
+await admin.getByText("Imagem enviada").waitFor();
+await admin.getByRole("button", { name: "Salvar produto" }).click();
+await admin.getByText("Produto salvo!").waitFor();
+const usedFiles = await listFiles("site-images", "produtos");
+// 2) Foto sem uso (enviada direto, como se tivesse sido trocada)
+await fetch(`${sbUrl}/storage/v1/object/site-images/produtos/sem-uso-teste.webp`, { method: "POST", headers: { apikey: service, Authorization: `Bearer ${service}`, "Content-Type": "image/webp" }, body: new Uint8Array([1, 2, 3]) });
+await admin.goto(`${BASE}/admin/configuracoes`);
+await admin.getByText(/foto\(s\) do site sem uso/).waitFor({ timeout: 15000 });
+await admin.getByRole("button", { name: "Apagar fotos sem uso" }).click();
+await admin.getByText(/foto\(s\) apagada\(s\)/).waitFor();
+const after = await listFiles("site-images", "produtos");
+ok(!after.includes("sem-uso-teste.webp"), "Botão apaga a foto que não é usada");
+ok(usedFiles.length > 0 && usedFiles.every((f) => after.includes(f)), "Foto em uso no produto NÃO é apagada");
+// 3) Apagar a foto de inspiração de um bolo
+const cakesBefore = await listFiles("inspiration-photos", "pedidos");
+await admin.goto(`${BASE}/admin`);
+await admin.selectOption('select[aria-label="Tipo de pedido"]', "bolo");
+await admin.getByRole("button", { name: /^Todos/ }).click();
+await admin.getByText("Ana Bolo").first().click();
+await admin.getByRole("button", { name: "Apagar foto" }).click();
+await admin.getByText("A foto de inspiração foi apagada.").waitFor();
+const cakesAfter = await listFiles("inspiration-photos", "pedidos");
+ok(cakesAfter.length === cakesBefore.length - 1, "Foto do bolo apagada do armazenamento");
 
 await browser.close();
 console.log(failures ? `\n${failures} falha(s)` : "\nTudo certo!");

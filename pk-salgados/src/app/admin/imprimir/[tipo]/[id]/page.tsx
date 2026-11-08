@@ -57,7 +57,7 @@ export default async function Imprimir({ params }: { params: Promise<{ tipo: str
           <p><b>Massa:</b> {o.dough || "—"}</p>
           <p><b>Recheio:</b> {o.filling || "—"}</p>
           <p><b>Tema/obs.:</b> {o.theme_notes || "—"}</p>
-          <p><b>Inspiração:</b> {o.has_inspiration ? "Sim (foto abaixo)" : "Não"}</p>
+          <p><b>Inspiração:</b> {o.has_inspiration ? (photo ? "Sim (foto abaixo)" : "Sim (foto já apagada)") : "Não"}</p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {photo && <img src={photo} alt="Foto de inspiração" className="mt-2 w-full" />}
         </>

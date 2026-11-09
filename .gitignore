@@ -11,3 +11,4 @@ supabase/.branches
 test-results
 .DS_Store
 capturas/
+.vercel

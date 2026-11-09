@@ -15,12 +15,15 @@ let failures = 0;
 const txt = async (loc) => (await loc.textContent()).replace(/\u00a0/g, " ");
 const ok = (cond, msg) => { console.log(`${cond ? "✔" : "✘"} ${msg}`); if (!cond) failures++; };
 
-const ANON = "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH";
 // Chave secreta lida do .env.local (nunca escrita no código).
+// Para testar o site no ar: rode com as variáveis do projeto real, ex.:
+//   set -a; . ./.env.production.local; set +a; node tests/e2e.mjs https://pk-salgados.vercel.app
 const envFile = existsSync(".env.local") ? readFileSync(".env.local", "utf8") : "";
-const service = process.env.SUPABASE_SERVICE_ROLE_KEY || envFile.match(/^SUPABASE_SERVICE_ROLE_KEY=(.*)$/m)?.[1]?.trim();
+const fromEnv = (k) => process.env[k] || envFile.match(new RegExp(`^${k}=(.*)$`, "m"))?.[1]?.trim();
+const service = fromEnv("SUPABASE_SERVICE_ROLE_KEY");
+const ANON = fromEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
 if (!service) throw new Error("Defina SUPABASE_SERVICE_ROLE_KEY (no .env.local) para o teste de fotos.");
-const sbUrl = "http://127.0.0.1:54321";
+const sbUrl = fromEnv("NEXT_PUBLIC_SUPABASE_URL") || "http://127.0.0.1:54321";
 
 const listFiles = async (bucket, prefix) => {
   const r = await fetch(`${sbUrl}/storage/v1/object/list/${bucket}`, { method: "POST", headers: { apikey: service, Authorization: `Bearer ${service}`, "Content-Type": "application/json" }, body: JSON.stringify({ prefix, limit: 1000 }) });
@@ -161,10 +164,9 @@ await admin.getByRole("button", { name: "Novo", exact: false }).first().click();
 await admin.locator('[data-realtime="on"]').waitFor({ timeout: 15000 });
 await admin.waitForTimeout(2500); // o Realtime leva um instante para começar a ouvir o banco
 const before = await admin.locator("li").count();
-const anon = "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH";
-const res = await fetch("http://127.0.0.1:54321/rest/v1/rpc/create_order", {
+const res = await fetch(`${sbUrl}/rest/v1/rpc/create_order`, {
   method: "POST",
-  headers: { apikey: anon, "Content-Type": "application/json" },
+  headers: { apikey: ANON, "Content-Type": "application/json" },
   body: JSON.stringify({ p_order: { channel: "site", customer_name: "Tempo Real", phone: "21933332222", fulfillment: "retirada", payment: "pix", desired_at: new Date(Date.now() + 3 * 86400_000).toISOString(), items: [{ product_id: "00000000-0000-4000-8000-000200000001", portion_id: "00000000-0000-4000-8000-000300000101", flavors: ["Mini hot dog"], quantity: 1 }] } }),
 });
 const rt = await res.json();

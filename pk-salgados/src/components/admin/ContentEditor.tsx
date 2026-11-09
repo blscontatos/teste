@@ -30,7 +30,7 @@ const SECTIONS: { key: ContentKey; title: string; fields: Field[] }[] = [
       { key: "title_line2", label: "Título — linha 2 (dourada)" },
       { key: "subtitle", label: "Subtítulo", type: "textarea" },
       { key: "cta_label", label: "Texto do botão" },
-      { key: "image_main", label: "Foto do topo (bolo e coxinha)", type: "image", aspect: 1288 / 782, hint: "Fica na metade direita do topo, de ponta a ponta. Use uma foto larga (proporção parecida com 16:10), de preferência com 2000 px ou mais." },
+      { key: "image_main", label: "Foto do topo (bolo e coxinha)", type: "image", aspect: 2031 / 774, hint: "Ocupa o topo de ponta a ponta, com o texto por cima do lado esquerdo: deixe a esquerda lisa (sem objetos). Use uma foto bem larga (cerca de 2000 × 770 px)." },
       { key: "image_main_alt", label: "Descrição da foto (acessibilidade)" },
     ],
   },

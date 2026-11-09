@@ -1,7 +1,7 @@
 "use client";
 // Seção principal, no layout aprovado pela loja: texto à esquerda (selo com traços dourados,
 // título em duas linhas, pincelada dourada, subtítulo e botão do WhatsApp) e a foto do bolo
-// com a coxinha ocupando a metade direita, de ponta a ponta, por trás do cabeçalho.
+// com a coxinha de ponta a ponta (a parte creme da esquerda fica atrás do texto), por trás do cabeçalho.
 // As medidas seguem as proporções do modelo (1024 × 391 px).
 import Image from "next/image";
 import { useRef } from "react";
@@ -42,20 +42,19 @@ export function Hero() {
 
   return (
     <section id="inicio" ref={ref} className="relative overflow-hidden" style={{ backgroundColor: HERO_BG }}>
-      <div className="relative lg:h-[38.2vw]">
-        {/* Foto: metade direita no computador; em cima, largura total, no celular */}
+      <div className="relative lg:h-[38.1vw]">
+        {/* Foto: largura total atrás do texto no computador; em cima (lado do bolo e da coxinha) no celular */}
         <motion.div
           style={{ y: yImg }}
           initial={{ opacity: 0, scale: 1.04 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.1, ease }}
-          className="relative aspect-[1288/782] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:aspect-auto lg:w-[63%]"
+          className="relative aspect-[1288/782] w-full lg:absolute lg:inset-0 lg:aspect-auto"
         >
           {h.image_main && (
-            <Image src={h.image_main} alt={h.image_main_alt} fill priority sizes="(max-width: 1024px) 100vw, 63vw" className="object-cover object-right" />
+            <Image src={h.image_main} alt={h.image_main_alt} fill priority sizes="100vw" className="object-cover object-right" />
           )}
           {/* degradê para a foto se misturar com o fundo do texto */}
-          <div aria-hidden className="absolute inset-y-0 left-0 hidden w-[12%] lg:block" style={{ background: `linear-gradient(to right, ${HERO_BG}, transparent)` }} />
           <div aria-hidden className="absolute inset-x-0 bottom-0 h-[18%] lg:hidden" style={{ background: `linear-gradient(to top, ${HERO_BG}, transparent)` }} />
         </motion.div>
 
@@ -84,7 +83,7 @@ export function Hero() {
             <Swash className="h-3 w-full lg:h-[1.3vw]" />
           </motion.div>
 
-          <motion.p {...fade(0.35)} className="mt-4 max-w-[30rem] text-[0.98rem] leading-relaxed text-ink/85 lg:mt-[1.1vw] lg:max-w-[29.6vw] lg:text-[clamp(0.78rem,1.3vw,1.3rem)] lg:leading-[1.55]">
+          <motion.p {...fade(0.35)} className="mt-4 max-w-[30rem] text-[0.98rem] leading-relaxed text-ink/85 lg:mt-[1.1vw] lg:max-w-[31vw] text-balance lg:text-[clamp(0.78rem,1.3vw,1.3rem)] lg:leading-[1.55]">
             {h.subtitle}
           </motion.p>
 

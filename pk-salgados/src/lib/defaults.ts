@@ -63,7 +63,7 @@ export const defaultContent: SiteContent = {
     title_line2: "Gigantes no sabor.",
     subtitle: "Salgados e doces feitos com muito amor, para tornar seu momento ainda mais especial.",
     cta_label: "Faça seu pedido",
-    image_main: "/images/hero-modelo.webp",
+    image_main: "/images/hero-original.webp",
     image_main_alt: "Bolo de chocolate com morangos e uma coxinha dourada",
     image_secondary: "",
     image_secondary_alt: "",

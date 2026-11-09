@@ -145,6 +145,8 @@ insert into public.testimonials (name, text, stars, id, visible, sort_order) val
   ('Juliana M.', 'Os salgados chegaram quentinhos e sequinhos. Todo mundo na festa perguntou de onde eram!', 5, '00000000-0000-4000-8000-000700000001', true, 0),
   ('Ricardo S.', 'Encomendei o bolo de aniversário da minha filha e ficou igualzinho à foto que mandei. Delicioso!', 5, '00000000-0000-4000-8000-000700000002', true, 1),
   ('Patrícia A.', 'Compro os congelados toda semana. Praticidade e sabor de salgado feito em casa.', 5, '00000000-0000-4000-8000-000700000003', true, 2),
-  ('Fernanda L.', 'Atendimento atencioso pelo WhatsApp e pontualidade na entrega. Recomendo demais.', 5, '00000000-0000-4000-8000-000700000004', true, 3)
+  ('Fernanda L.', 'Atendimento atencioso pelo WhatsApp e pontualidade na entrega. Recomendo demais.', 5, '00000000-0000-4000-8000-000700000004', true, 3),
+  ('Camila R.', 'Fiz o pedido pelo site em poucos minutos. Os docinhos estavam lindos e muito saborosos!', 5, '00000000-0000-4000-8000-000700000005', true, 4),
+  ('Marcos T.', 'Pedi os salgados congelados para o aniversário do meu filho. Fritei na hora e ficaram perfeitos.', 5, '00000000-0000-4000-8000-000700000006', true, 5)
 on conflict do nothing;
 

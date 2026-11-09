@@ -94,3 +94,9 @@ body {
   .no-print { display: none !important; }
   body { background: #fff; }
 }
+
+/* Depoimentos passando continuamente (a lista é duplicada; -50% = uma volta completa) */
+@keyframes pk-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}

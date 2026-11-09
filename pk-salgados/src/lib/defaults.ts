@@ -329,4 +329,6 @@ export const defaultTestimonials: Testimonial[] = [
   { name: "Ricardo S.", text: "Encomendei o bolo de aniversário da minha filha e ficou igualzinho à foto que mandei. Delicioso!", stars: 5 },
   { name: "Patrícia A.", text: "Compro os congelados toda semana. Praticidade e sabor de salgado feito em casa.", stars: 5 },
   { name: "Fernanda L.", text: "Atendimento atencioso pelo WhatsApp e pontualidade na entrega. Recomendo demais.", stars: 5 },
+  { name: "Camila R.", text: "Fiz o pedido pelo site em poucos minutos. Os docinhos estavam lindos e muito saborosos!", stars: 5 },
+  { name: "Marcos T.", text: "Pedi os salgados congelados para o aniversário do meu filho. Fritei na hora e ficaram perfeitos.", stars: 5 },
 ].map((t, i) => ({ ...t, id: id(7, i + 1), visible: true, sort_order: i }));

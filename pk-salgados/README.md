@@ -7,6 +7,8 @@ Site de pedidos da **PK Salgados e Doces** com painel para as donas editarem tud
 - **Bolo de festa**: formulário de encomenda com foto de inspiração (JPG, PNG ou HEIC até 10 MB, comprimida no celular). Dois modos, escolhidos em *Configurações → Bolos de festa*:
   - **Cliente envia pelo WhatsApp** (padrão): a foto **não vai para o site**. Depois de enviar o formulário, o WhatsApp da PK abre com os dados e um segundo botão, “Enviar a foto do modelo”, abre a tela de compartilhar do celular com a foto. O cliente escolhe a conversa da PK e envia. No computador, ele baixa a foto e anexa pelo clipe.
   - **Guardar no site e mandar link**: a foto vai para o armazenamento, aparece no painel e segue como link na mensagem.
+- **Horários**: o cliente só escolhe dia e horário em que a loja está aberta (segunda a sábado, 9h às 18h; domingo fechado). Na aba **Horários** do painel dá para mudar a semana inteira ou criar datas especiais (abrir um domingo, ficar até mais tarde, fechar num feriado). O banco também recusa pedidos fora do horário.
+- **Sabores por bandeja**: 1 sabor a cada 20 unidades (bandeja de 20 = 1 sabor; 50 fritos = 2; 100 fritos = 5). Com 2 bandejas, 1 sabor para cada. Ajustável por porção em *Produtos*.
 - **Painel** (`/admin`): pedidos em tempo real com som e notificação, produtos, sabores, porções, promoções, textos e imagens (com prévia antes de publicar), depoimentos e configurações (inclusive “loja fechada”).
 
 Tecnologias: Next.js 15 (App Router) + TypeScript, Tailwind CSS 4, Framer Motion, Supabase (banco, login, fotos, tempo real) e hospedagem na Vercel.
@@ -27,7 +29,7 @@ Leva uns 30 minutos. Você vai precisar de: uma conta no **GitHub** (onde o cód
    - Clique em **Create new project** e espere uns 2 minutos.
 3. No menu da esquerda, abra **SQL Editor** → **New query**.
 4. Abra o arquivo [`supabase/migrations/20261108000000_init.sql`](supabase/migrations/20261108000000_init.sql) aqui no GitHub, copie **todo** o conteúdo, cole no editor e clique em **Run**. Deve aparecer “Success”.
-5. Faça o mesmo, **nesta ordem**, com [`supabase/migrations/20261109000000_foto_bolo_whatsapp.sql`](supabase/migrations/20261109000000_foto_bolo_whatsapp.sql) e depois com [`supabase/seed.sql`](supabase/seed.sql) (é o cardápio do folder, as categorias, 3 combos de exemplo e os textos iniciais).
+5. Faça o mesmo, **nesta ordem**, com [`supabase/migrations/20261109000000_foto_bolo_whatsapp.sql`](supabase/migrations/20261109000000_foto_bolo_whatsapp.sql), [`supabase/migrations/20261110000000_horarios_e_sabores.sql`](supabase/migrations/20261110000000_horarios_e_sabores.sql) e depois com [`supabase/seed.sql`](supabase/seed.sql) (é o cardápio do folder, as categorias, 3 combos de exemplo e os textos iniciais).
 6. Vá em **Authentication → Sign In / Providers** e **desligue** “Allow new users to sign up” (assim só as donas têm acesso).
 7. Vá em **Authentication → URL Configuration**:
    - **Site URL:** o endereço do site (por enquanto, o da Vercel, que você vai ganhar no passo 3, ex.: `https://pk-salgados.vercel.app`).
@@ -91,10 +93,10 @@ Estes itens vieram como **exemplo** e precisam da confirmação de vocês:
 
 - **Depoimentos**: os 4 que vêm no site são exemplos. Troque por depoimentos reais.
 - **Combos/promoções**: os 3 combos (Combo Festa Completa R$ 72, Kit Assados R$ 58, Docinhos em Dobro R$ 38) foram montados com os preços do folder, mas os descontos são sugestões.
-- **Limite de sabores**: o folder não diz quantos sabores cabem em cada porção. Usamos 2 por bandeja de 20, 3 por 50 e 5 por 100 salgados fritos e 1 nos Salgados Especiais. Ajuste em *Produtos*.
+- **Limite de sabores**: 1 sabor a cada 20 unidades (pedido da loja). Ajuste em *Produtos* se alguma bandeja for diferente.
 - **Bolos caseiros, Tortas e Torta Cook**: não estão no folder. Aparecem como “Consulte” (botão para o WhatsApp) até vocês cadastrarem produtos com preço.
 - **Tamanhos, massas e recheios do bolo de festa**: são exemplos (em *Configurações*).
-- **Antecedência**: 3 dias para bolo de festa e 24 horas para os demais pedidos.
+- **Antecedência**: 3 dias para bolo de festa e 24 horas para os demais pedidos, sempre dentro do horário de funcionamento (aba *Horários*).
 - **Taxa de entrega**: está “a combinar” (R$ 0). Defina em *Configurações*.
 - **Fotos**: são fotos gratuitas da internet (créditos em `public/images/CREDITOS.md`). O logo foi recortado do folder.
 

@@ -39,6 +39,16 @@ export const defaultSettings: Settings = {
   store_closed: false,
   store_closed_message: "Hoje não estamos aceitando pedidos. Voltamos em breve!",
   cake_photo_mode: "whatsapp",
+  weekly_hours: {
+    "0": null,
+    "1": { open: "09:00", close: "18:00" },
+    "2": { open: "09:00", close: "18:00" },
+    "3": { open: "09:00", close: "18:00" },
+    "4": { open: "09:00", close: "18:00" },
+    "5": { open: "09:00", close: "18:00" },
+    "6": { open: "09:00", close: "18:00" },
+  },
+  special_hours: [],
 };
 
 export const defaultContent: SiteContent = {
@@ -145,51 +155,51 @@ const prodSeeds: ProdSeed[] = [
   {
     cat: "assados", name: "Salgados Assados", slug: "salgados-assados", featured: true,
     description: "Bandeja com 20 unidades de salgados assados. Monte com os sabores que preferir.",
-    image: "/images/cat-assados.webp", price: 21, max_flavors: 2,
+    image: "/images/cat-assados.webp", price: 21, max_flavors: 1,
     portions: [{ label: "20 unidades", units: 20, price: 21 }],
     flavors: ["Mini hambúrguer", "Mini hot dog", "Joelhinho de queijo com presunto", "Joelhinho de frango", "Joelho de calabresa", "Esfiha de queijo", "Esfiha de carne", "Esfiha de frango"],
   },
   {
     cat: "mini-pizzas", name: "Mini Pizza", slug: "mini-pizza",
     description: "Bandeja com 20 mini pizzas assadas.",
-    image: "/images/cat-mini-pizzas.webp", price: 21, max_flavors: 2,
+    image: "/images/cat-mini-pizzas.webp", price: 21, max_flavors: 1,
     portions: [{ label: "20 unidades", units: 20, price: 21 }],
     flavors: ["Muçarela", "Presunto", "Calabresa"],
   },
   {
     cat: "mini-quiches", name: "Mini Quiche", slug: "mini-quiche",
     description: "Bandeja com 20 mini quiches, salgadas e doces.",
-    image: "/images/cat-quiches.webp", price: 21, max_flavors: 2,
+    image: "/images/cat-quiches.webp", price: 21, max_flavors: 1,
     portions: [{ label: "20 unidades", units: 20, price: 21 }],
     flavors: ["Queijo", "Alho-poró", "Bacalhau", "Camarão", "Carne seca", "Espinafre com queijo", "Cebola", "Queijo com goiabada", "Chocolate"],
   },
   {
     cat: "folhados", name: "Folhados", slug: "folhados",
     description: "Bandeja com 20 folhados de massa crocante.",
-    image: "/images/cat-folhados.webp", price: 21, max_flavors: 2,
+    image: "/images/cat-folhados.webp", price: 21, max_flavors: 1,
     portions: [{ label: "20 unidades", units: 20, price: 21 }],
     flavors: ["Queijo com presunto", "Bacalhau", "Camarão", "Frango", "Ameixa com bacon"],
   },
   {
     cat: "croissants", name: "Croissant", slug: "croissant",
     description: "Bandeja com 20 mini croissants recheados.",
-    image: "/images/cat-croissants.webp", price: 21, max_flavors: 2,
+    image: "/images/cat-croissants.webp", price: 21, max_flavors: 1,
     portions: [{ label: "20 unidades", units: 20, price: 21 }],
     flavors: ["Queijo com presunto", "Frango", "Peito de peru", "Queijo"],
   },
   {
     cat: "pastel-forno", name: "Pastel de Forno", slug: "pastel-de-forno",
     description: "Bandeja com 20 pastéis de forno.",
-    image: "/images/cat-pastel-forno.webp", price: 21, max_flavors: 2,
+    image: "/images/cat-pastel-forno.webp", price: 21, max_flavors: 1,
     portions: [{ label: "20 unidades", units: 20, price: 21 }],
     flavors: ["Frango", "Carne", "Camarão", "Bacalhau", "Ameixa com bacon"],
   },
   {
     cat: "fritos", kind: "frito", name: "Salgados Fritos 18g", slug: "salgados-fritos-18g", featured: true,
     description: "Salgadinhos de festa de 18g. Leve congelados para fritar em casa ou já fritinhos.",
-    image: "/images/cat-fritos.webp", price: 21, max_flavors: 3,
+    image: "/images/cat-fritos.webp", price: 21, max_flavors: 1,
     portions: [
-      { label: "50 unidades", units: 50, frozen: 21, fried: 32, max: 3 },
+      { label: "50 unidades", units: 50, frozen: 21, fried: 32, max: 2 },
       { label: "100 unidades", units: 100, frozen: 42, fried: 57, max: 5 },
     ],
     flavors: ["Coxinha", "Bolinha de queijo", "Queijo com presunto", "Queijo com alho", "Risole de carne", "Calabresa", "Quibe", "Quibe recheado", "Risole de camarão", "Coxinha de costela", "Enroladinho de salsicha", "Feijoada", "Aipim com carne", "Aipim com queijo", "Aipim com calabresa", "Coxinha de aipim"],
@@ -197,7 +207,7 @@ const prodSeeds: ProdSeed[] = [
   {
     cat: "pastel-frito", kind: "frito", name: "Pastel Frito", slug: "pastel-frito",
     description: "Pacote com 20 pastéis. Congelados para fritar em casa ou já fritos.",
-    image: "/images/cat-pastel-frito.webp", price: 14, max_flavors: 2,
+    image: "/images/cat-pastel-frito.webp", price: 14, max_flavors: 1,
     portions: [{ label: "20 unidades", units: 20, frozen: 14, fried: 17 }],
     flavors: ["Queijo", "Carne"],
   },
@@ -211,7 +221,7 @@ const prodSeeds: ProdSeed[] = [
   {
     cat: "docinhos", name: "Bandeja de Docinhos", slug: "bandeja-de-docinhos", featured: true,
     description: "Bandeja com 20 docinhos de festa.",
-    image: "/images/cat-docinhos.webp", price: 21, max_flavors: 2,
+    image: "/images/cat-docinhos.webp", price: 21, max_flavors: 1,
     portions: [{ label: "20 unidades", units: 20, price: 21 }],
     flavors: ["Brigadeiro", "Cajuzinho", "Beijinho", "Moranguinho"],
   },
@@ -240,7 +250,8 @@ export const defaultProducts: Product[] = prodSeeds.map((p, i) => {
     price: po.price ?? null,
     price_frozen: po.frozen ?? null,
     price_fried: po.fried ?? null,
-    max_flavors: po.max ?? null,
+    // Regra: 1 sabor a cada 20 unidades (20 un = 1, 50 un = 2, 100 un = 5)
+    max_flavors: po.max ?? (po.units ? Math.max(1, Math.floor(po.units / 20)) : null),
     sort_order: j,
   }));
   const flavors: Flavor[] = p.flavors.map((name, j) => ({

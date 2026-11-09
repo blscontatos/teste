@@ -9,6 +9,7 @@ import { Wave } from "@/components/ui/Decor";
 import { maskPhone } from "@/lib/format";
 import { waLink } from "@/lib/whatsapp";
 import { NAV } from "./Header";
+import { describeSpecial, describeWeekly, upcomingSpecials } from "@/lib/hours";
 
 export function Footer() {
   const { data } = useShop();
@@ -89,12 +90,17 @@ export function Footer() {
                   </a>
                 </li>
               )}
-              {s.opening_hours && (
-                <li className="flex items-start gap-3">
-                  <Clock className="mt-0.5 h-5 w-5 shrink-0 text-gold" aria-hidden />
-                  <span>{s.opening_hours}</span>
-                </li>
-              )}
+              <li className="flex items-start gap-3">
+                <Clock className="mt-0.5 h-5 w-5 shrink-0 text-gold" aria-hidden />
+                <span>
+                  {describeWeekly(s.weekly_hours)}
+                  {upcomingSpecials(s.special_hours).length > 0 && (
+                    <span className="mt-1 block text-white/70">
+                      Horários especiais: {upcomingSpecials(s.special_hours).slice(0, 3).map(describeSpecial).join(" · ")}
+                    </span>
+                  )}
+                </span>
+              </li>
             </ul>
           </div>
         </div>

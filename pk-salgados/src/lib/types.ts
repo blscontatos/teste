@@ -29,6 +29,20 @@ export interface Settings {
   store_closed_message: string;
   /** 'whatsapp' = cliente envia a foto do bolo no WhatsApp; 'link' = foto guardada no site e enviada como link */
   cake_photo_mode: CakePhotoMode;
+  /** Semana geral: chave = dia da semana (0 = domingo … 6 = sábado); null = fechado */
+  weekly_hours: WeeklyHours;
+  /** Datas especiais (abrir num domingo, feriado, horário diferente) */
+  special_hours: SpecialDay[];
+}
+
+export type DayHours = { open: string; close: string } | null;
+export type WeeklyHours = Record<"0" | "1" | "2" | "3" | "4" | "5" | "6", DayHours>;
+export interface SpecialDay {
+  date: string; // AAAA-MM-DD
+  closed: boolean;
+  open?: string;
+  close?: string;
+  note?: string;
 }
 
 export interface Category {

@@ -1,8 +1,8 @@
 -- Gerado automaticamente por scripts/gerar-seed.mts — não edite à mão.
 -- Conteúdo inicial do site (folder da PK Salgados).
 
-insert into public.settings (id, whatsapp, phone_secondary, instagram, facebook, address, maps_url, opening_hours, delivery_fee, delivery_area, delivery_enabled, min_cake_notice_days, min_order_notice_hours, cake_sizes, cake_doughs, cake_fillings, store_closed, store_closed_message, cake_photo_mode) values
-  (1, '5521982712575', '(21) 3066-1028', 'pksalgados', 'pksalgados', 'R. Brício Filho, 16 - Guadalupe, Rio de Janeiro - RJ, 21660-290', 'https://www.google.com/maps/search/?api=1&query=R.+Br%C3%ADcio+Filho,+16+-+Guadalupe,+Rio+de+Janeiro+-+RJ', 'Segunda a Sábado, das 9h às 18h', 0, 'Consulte a taxa e a área de entrega pelo WhatsApp.', true, 3, 24, array['Até 15 pessoas', 'Até 25 pessoas', 'Até 40 pessoas', 'Até 60 pessoas', 'Mais de 60 pessoas']::text[], array['Massa branca (baunilha)', 'Massa de chocolate', 'Massa mesclada']::text[], array['Brigadeiro', 'Beijinho', 'Doce de leite', 'Ninho com morango', 'Abacaxi com coco', 'Prestígio']::text[], false, 'Hoje não estamos aceitando pedidos. Voltamos em breve!', 'whatsapp')
+insert into public.settings (id, whatsapp, phone_secondary, instagram, facebook, address, maps_url, opening_hours, delivery_fee, delivery_area, delivery_enabled, min_cake_notice_days, min_order_notice_hours, cake_sizes, cake_doughs, cake_fillings, store_closed, store_closed_message, cake_photo_mode, weekly_hours, special_hours) values
+  (1, '5521982712575', '(21) 3066-1028', 'pksalgados', 'pksalgados', 'R. Brício Filho, 16 - Guadalupe, Rio de Janeiro - RJ, 21660-290', 'https://www.google.com/maps/search/?api=1&query=R.+Br%C3%ADcio+Filho,+16+-+Guadalupe,+Rio+de+Janeiro+-+RJ', 'Segunda a Sábado, das 9h às 18h', 0, 'Consulte a taxa e a área de entrega pelo WhatsApp.', true, 3, 24, array['Até 15 pessoas', 'Até 25 pessoas', 'Até 40 pessoas', 'Até 60 pessoas', 'Mais de 60 pessoas']::text[], array['Massa branca (baunilha)', 'Massa de chocolate', 'Massa mesclada']::text[], array['Brigadeiro', 'Beijinho', 'Doce de leite', 'Ninho com morango', 'Abacaxi com coco', 'Prestígio']::text[], false, 'Hoje não estamos aceitando pedidos. Voltamos em breve!', 'whatsapp', '{"0":null,"1":{"open":"09:00","close":"18:00"},"2":{"open":"09:00","close":"18:00"},"3":{"open":"09:00","close":"18:00"},"4":{"open":"09:00","close":"18:00"},"5":{"open":"09:00","close":"18:00"},"6":{"open":"09:00","close":"18:00"}}'::jsonb, '[]'::jsonb)
 on conflict do nothing;
 
 insert into public.site_content (key, data) values
@@ -35,33 +35,33 @@ insert into public.categories (section, name, slug, description, image_url, id, 
 on conflict do nothing;
 
 insert into public.products (id, category_id, kind, name, slug, description, images, price, max_flavors, available, visible, featured, sort_order) values
-  ('00000000-0000-4000-8000-000200000001', '00000000-0000-4000-8000-000100000001', 'comum', 'Salgados Assados', 'salgados-assados', 'Bandeja com 20 unidades de salgados assados. Monte com os sabores que preferir.', array['/images/cat-assados.webp']::text[], 21, 2, true, true, true, 0),
-  ('00000000-0000-4000-8000-000200000002', '00000000-0000-4000-8000-000100000002', 'comum', 'Mini Pizza', 'mini-pizza', 'Bandeja com 20 mini pizzas assadas.', array['/images/cat-mini-pizzas.webp']::text[], 21, 2, true, true, false, 1),
-  ('00000000-0000-4000-8000-000200000003', '00000000-0000-4000-8000-000100000003', 'comum', 'Mini Quiche', 'mini-quiche', 'Bandeja com 20 mini quiches, salgadas e doces.', array['/images/cat-quiches.webp']::text[], 21, 2, true, true, false, 2),
-  ('00000000-0000-4000-8000-000200000004', '00000000-0000-4000-8000-000100000004', 'comum', 'Folhados', 'folhados', 'Bandeja com 20 folhados de massa crocante.', array['/images/cat-folhados.webp']::text[], 21, 2, true, true, false, 3),
-  ('00000000-0000-4000-8000-000200000005', '00000000-0000-4000-8000-000100000005', 'comum', 'Croissant', 'croissant', 'Bandeja com 20 mini croissants recheados.', array['/images/cat-croissants.webp']::text[], 21, 2, true, true, false, 4),
-  ('00000000-0000-4000-8000-000200000006', '00000000-0000-4000-8000-000100000006', 'comum', 'Pastel de Forno', 'pastel-de-forno', 'Bandeja com 20 pastéis de forno.', array['/images/cat-pastel-forno.webp']::text[], 21, 2, true, true, false, 5),
-  ('00000000-0000-4000-8000-000200000007', '00000000-0000-4000-8000-000100000007', 'frito', 'Salgados Fritos 18g', 'salgados-fritos-18g', 'Salgadinhos de festa de 18g. Leve congelados para fritar em casa ou já fritinhos.', array['/images/cat-fritos.webp']::text[], 21, 3, true, true, true, 6),
-  ('00000000-0000-4000-8000-000200000008', '00000000-0000-4000-8000-000100000008', 'frito', 'Pastel Frito', 'pastel-frito', 'Pacote com 20 pastéis. Congelados para fritar em casa ou já fritos.', array['/images/cat-pastel-frito.webp']::text[], 14, 2, true, true, false, 7),
+  ('00000000-0000-4000-8000-000200000001', '00000000-0000-4000-8000-000100000001', 'comum', 'Salgados Assados', 'salgados-assados', 'Bandeja com 20 unidades de salgados assados. Monte com os sabores que preferir.', array['/images/cat-assados.webp']::text[], 21, 1, true, true, true, 0),
+  ('00000000-0000-4000-8000-000200000002', '00000000-0000-4000-8000-000100000002', 'comum', 'Mini Pizza', 'mini-pizza', 'Bandeja com 20 mini pizzas assadas.', array['/images/cat-mini-pizzas.webp']::text[], 21, 1, true, true, false, 1),
+  ('00000000-0000-4000-8000-000200000003', '00000000-0000-4000-8000-000100000003', 'comum', 'Mini Quiche', 'mini-quiche', 'Bandeja com 20 mini quiches, salgadas e doces.', array['/images/cat-quiches.webp']::text[], 21, 1, true, true, false, 2),
+  ('00000000-0000-4000-8000-000200000004', '00000000-0000-4000-8000-000100000004', 'comum', 'Folhados', 'folhados', 'Bandeja com 20 folhados de massa crocante.', array['/images/cat-folhados.webp']::text[], 21, 1, true, true, false, 3),
+  ('00000000-0000-4000-8000-000200000005', '00000000-0000-4000-8000-000100000005', 'comum', 'Croissant', 'croissant', 'Bandeja com 20 mini croissants recheados.', array['/images/cat-croissants.webp']::text[], 21, 1, true, true, false, 4),
+  ('00000000-0000-4000-8000-000200000006', '00000000-0000-4000-8000-000100000006', 'comum', 'Pastel de Forno', 'pastel-de-forno', 'Bandeja com 20 pastéis de forno.', array['/images/cat-pastel-forno.webp']::text[], 21, 1, true, true, false, 5),
+  ('00000000-0000-4000-8000-000200000007', '00000000-0000-4000-8000-000100000007', 'frito', 'Salgados Fritos 18g', 'salgados-fritos-18g', 'Salgadinhos de festa de 18g. Leve congelados para fritar em casa ou já fritinhos.', array['/images/cat-fritos.webp']::text[], 21, 1, true, true, true, 6),
+  ('00000000-0000-4000-8000-000200000008', '00000000-0000-4000-8000-000100000008', 'frito', 'Pastel Frito', 'pastel-frito', 'Pacote com 20 pastéis. Congelados para fritar em casa ou já fritos.', array['/images/cat-pastel-frito.webp']::text[], 14, 1, true, true, false, 7),
   ('00000000-0000-4000-8000-000200000009', '00000000-0000-4000-8000-000100000009', 'frito', 'Salgados Especiais', 'salgados-especiais', 'Pacote de um sabor. A quantidade de unidades varia conforme o salgado.', array['/images/cat-especiais.webp']::text[], 40, 1, true, true, false, 8),
-  ('00000000-0000-4000-8000-000200000010', '00000000-0000-4000-8000-000100000010', 'comum', 'Bandeja de Docinhos', 'bandeja-de-docinhos', 'Bandeja com 20 docinhos de festa.', array['/images/cat-docinhos.webp']::text[], 21, 2, true, true, true, 9),
+  ('00000000-0000-4000-8000-000200000010', '00000000-0000-4000-8000-000100000010', 'comum', 'Bandeja de Docinhos', 'bandeja-de-docinhos', 'Bandeja com 20 docinhos de festa.', array['/images/cat-docinhos.webp']::text[], 21, 1, true, true, true, 9),
   ('00000000-0000-4000-8000-000200000011', '00000000-0000-4000-8000-000100000011', 'comum', 'Brigadeiro', 'brigadeiro', 'Bandeja com 20 brigadeiros tradicionais.', array['/images/cat-brigadeiro.webp']::text[], 21, 1, true, true, false, 10),
   ('00000000-0000-4000-8000-000200000012', '00000000-0000-4000-8000-000100000012', 'bolo_festa', 'Bolo de Festa', 'bolo-de-festa', 'Bolo personalizado para aniversários, chás e comemorações. Conte pra gente o tema e, se tiver, envie uma foto de inspiração.', array['/images/cat-bolos-festa.webp']::text[], null, 1, true, true, false, 11)
 on conflict do nothing;
 
 insert into public.product_portions (id, product_id, label, units, price, price_frozen, price_fried, max_flavors, sort_order) values
-  ('00000000-0000-4000-8000-000300000101', '00000000-0000-4000-8000-000200000001', '20 unidades', 20, 21, null, null, null, 0),
-  ('00000000-0000-4000-8000-000300000201', '00000000-0000-4000-8000-000200000002', '20 unidades', 20, 21, null, null, null, 0),
-  ('00000000-0000-4000-8000-000300000301', '00000000-0000-4000-8000-000200000003', '20 unidades', 20, 21, null, null, null, 0),
-  ('00000000-0000-4000-8000-000300000401', '00000000-0000-4000-8000-000200000004', '20 unidades', 20, 21, null, null, null, 0),
-  ('00000000-0000-4000-8000-000300000501', '00000000-0000-4000-8000-000200000005', '20 unidades', 20, 21, null, null, null, 0),
-  ('00000000-0000-4000-8000-000300000601', '00000000-0000-4000-8000-000200000006', '20 unidades', 20, 21, null, null, null, 0),
-  ('00000000-0000-4000-8000-000300000701', '00000000-0000-4000-8000-000200000007', '50 unidades', 50, null, 21, 32, 3, 0),
+  ('00000000-0000-4000-8000-000300000101', '00000000-0000-4000-8000-000200000001', '20 unidades', 20, 21, null, null, 1, 0),
+  ('00000000-0000-4000-8000-000300000201', '00000000-0000-4000-8000-000200000002', '20 unidades', 20, 21, null, null, 1, 0),
+  ('00000000-0000-4000-8000-000300000301', '00000000-0000-4000-8000-000200000003', '20 unidades', 20, 21, null, null, 1, 0),
+  ('00000000-0000-4000-8000-000300000401', '00000000-0000-4000-8000-000200000004', '20 unidades', 20, 21, null, null, 1, 0),
+  ('00000000-0000-4000-8000-000300000501', '00000000-0000-4000-8000-000200000005', '20 unidades', 20, 21, null, null, 1, 0),
+  ('00000000-0000-4000-8000-000300000601', '00000000-0000-4000-8000-000200000006', '20 unidades', 20, 21, null, null, 1, 0),
+  ('00000000-0000-4000-8000-000300000701', '00000000-0000-4000-8000-000200000007', '50 unidades', 50, null, 21, 32, 2, 0),
   ('00000000-0000-4000-8000-000300000702', '00000000-0000-4000-8000-000200000007', '100 unidades', 100, null, 42, 57, 5, 1),
-  ('00000000-0000-4000-8000-000300000801', '00000000-0000-4000-8000-000200000008', '20 unidades', 20, null, 14, 17, null, 0),
+  ('00000000-0000-4000-8000-000300000801', '00000000-0000-4000-8000-000200000008', '20 unidades', 20, null, 14, 17, 1, 0),
   ('00000000-0000-4000-8000-000300000901', '00000000-0000-4000-8000-000200000009', '1 pacote', null, null, 40, 50, null, 0),
-  ('00000000-0000-4000-8000-000300001001', '00000000-0000-4000-8000-000200000010', '20 unidades', 20, 21, null, null, null, 0),
-  ('00000000-0000-4000-8000-000300001101', '00000000-0000-4000-8000-000200000011', '20 unidades', 20, 21, null, null, null, 0)
+  ('00000000-0000-4000-8000-000300001001', '00000000-0000-4000-8000-000200000010', '20 unidades', 20, 21, null, null, 1, 0),
+  ('00000000-0000-4000-8000-000300001101', '00000000-0000-4000-8000-000200000011', '20 unidades', 20, 21, null, null, 1, 0)
 on conflict do nothing;
 
 insert into public.product_flavors (id, product_id, name, sold_out, sort_order) values

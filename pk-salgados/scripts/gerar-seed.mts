@@ -6,10 +6,19 @@ import {
   defaultSettings, defaultTestimonials,
 } from "../src/lib/defaults.ts";
 
+/** Marca valores que vão para colunas jsonb (ex.: listas de objetos). */
+class Jsonb {
+  value: unknown;
+  constructor(value: unknown) {
+    this.value = value;
+  }
+}
+
 const q = (v: unknown): string => {
   if (v === null || v === undefined) return "null";
   if (typeof v === "number") return String(v);
   if (typeof v === "boolean") return v ? "true" : "false";
+  if (v instanceof Jsonb) return `${q(JSON.stringify(v.value))}::jsonb`;
   if (Array.isArray(v)) return `array[${v.map(q).join(", ")}]::text[]`;
   if (typeof v === "object") return `${q(JSON.stringify(v))}::jsonb`;
   return `'${String(v).replace(/'/g, "''")}'`;
@@ -25,7 +34,7 @@ const insert = (table: string, rows: any[]) => {
 const arr = (a: string[]) => (a.length ? a : null);
 
 let sql = `-- Gerado automaticamente por scripts/gerar-seed.mts — não edite à mão.\n-- Conteúdo inicial do site (folder da PK Salgados).\n\n`;
-sql += insert("settings", [{ id: 1, ...defaultSettings }]);
+sql += insert("settings", [{ id: 1, ...defaultSettings, special_hours: new Jsonb(defaultSettings.special_hours) }]);
 sql += insert("site_content", Object.entries(defaultContent).map(([key, data]) => ({ key, data })));
 sql += insert("categories", defaultCategories);
 sql += insert("products", defaultProducts.map(({ portions: _p, flavors: _f, ...p }) => ({ ...p, images: arr(p.images) ?? [] })));

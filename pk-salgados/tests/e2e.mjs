@@ -46,8 +46,8 @@ async function cakeOrder(page, name) {
   await cake.getByLabel("Nome completo *").fill(name);
   await cake.getByLabel("Telefone / WhatsApp *").fill(`2195555${String(Math.floor(Math.random() * 9000) + 1000)}`);
   await cake.getByLabel("Endereço completo *").fill("Rua Teste, 123 - Guadalupe");
-  await cake.getByLabel("Data *").fill(new Date(Date.now() + 5 * 86400_000).toISOString().slice(0, 10));
-  await cake.getByLabel("Horário *").fill("14:00");
+  await cake.getByLabel("Data da retirada/entrega *").fill(nextOpen(5));
+  await cake.getByLabel("Horário *").selectOption("14:00");
   await cake.getByLabel("Tamanho / quantidade de pessoas").selectOption({ index: 2 });
   await cake.getByRole("button", { name: "Sim" }).click();
   await cake.getByRole("button", { name: "Enviar encomenda pelo WhatsApp" }).click();
@@ -61,6 +61,12 @@ async function cakeOrder(page, name) {
   await popup.close();
   return { msg, required };
 }
+
+/** Datas em Brasília: "AAAA-MM-DD" daqui a N dias; próximo dia útil (seg–sáb) e próximo domingo. */
+const brDate = (days) => new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Sao_Paulo" }).format(new Date(Date.now() + days * 86400_000));
+const dow = (date) => new Date(`${date}T12:00:00Z`).getUTCDay();
+const nextOpen = (minDays) => { for (let i = minDays; ; i++) if (dow(brDate(i)) !== 0) return brDate(i); };
+const nextSunday = (minDays) => { for (let i = minDays; ; i++) if (dow(brDate(i)) === 0) return brDate(i); };
 
 const browser = await chromium.launch();
 
@@ -85,6 +91,18 @@ await page.getByRole("button", { name: "Adicionar à sacola" }).click();
 await page.getByText("Adicionado à sacola").waitFor();
 ok(true, "Toast 'Adicionado à sacola'");
 
+// Mini quiche (20 un): só 1 sabor por bandeja; com 2 bandejas, libera o 2º
+await page.locator("#salgados").scrollIntoViewIfNeeded();
+await page.getByRole("button", { name: "Ver Mini Quiches" }).click();
+await page.getByRole("button", { name: "Queijo", exact: true }).click();
+await page.getByRole("button", { name: "Alho-poró" }).click();
+const pressed = async (n) => (await page.getByRole("button", { name: n, exact: true }).getAttribute("aria-pressed")) === "true";
+ok(!(await pressed("Queijo")) && (await pressed("Alho-poró")) && (await page.getByText("1 de 1 sabor").isVisible()), "Mini quiche: 1 sabor por bandeja de 20");
+await page.getByRole("button", { name: "Aumentar" }).click();
+await page.getByRole("button", { name: "Queijo", exact: true }).click();
+ok((await pressed("Queijo")) && (await pressed("Alho-poró")), "Com 2 bandejas, pode escolher 2 sabores");
+await page.getByRole("button", { name: "Fechar" }).click();
+
 // Promoção
 await page.locator("#promocoes").scrollIntoViewIfNeeded();
 await page.getByRole("button", { name: "Pedir agora" }).first().click();
@@ -99,8 +117,14 @@ ok(await page.getByText("Informe seu nome completo.").isVisible(), "Validação 
 await page.getByLabel("Nome completo *").fill("Maria Teste");
 await page.getByLabel("Telefone / WhatsApp *").fill("21987654321");
 ok((await page.getByLabel("Telefone / WhatsApp *").inputValue()) === "(21) 98765-4321", "Máscara de telefone");
-const d = new Date(Date.now() + 3 * 86400_000).toISOString().slice(0, 10);
-await page.getByLabel("Data e horário desejados *").fill(`${d}T15:00`);
+// Domingo: loja fechada
+await page.getByLabel("Data da retirada *").fill(nextSunday(2));
+ok(await page.getByText("A loja não abre nesse dia").isVisible() && (await page.getByLabel("Horário *").isDisabled()), "Domingo aparece fechado (sem horários)");
+const d = nextOpen(3);
+await page.getByLabel("Data da retirada *").fill(d);
+const slots = await page.getByLabel("Horário *").locator("option").evaluateAll((os) => os.map((o) => o.value).filter(Boolean));
+ok(slots[0] === "09:00" && slots[slots.length - 1] === "18:00" && slots.length === 19, `Horários de 9h às 18h (${slots[0]}…${slots[slots.length - 1]})`);
+await page.getByLabel("Horário *").selectOption("15:00");
 await page.getByRole("button", { name: "Enviar pedido pelo site" }).click();
 await page.getByText("Recebemos seu pedido").waitFor({ timeout: 15000 });
 const number = (await page.getByText(/^nº \d+/).textContent()).replace(/\D/g, "");
@@ -116,7 +140,8 @@ await page.getByRole("button", { name: /Abrir sacola/ }).click();
 await page.getByRole("button", { name: "Continuar" }).click();
 await page.getByLabel("Nome completo *").fill("João Teste");
 await page.getByLabel("Telefone / WhatsApp *").fill("21912345678");
-await page.getByLabel("Data e horário desejados *").fill(`${d}T11:00`);
+await page.getByLabel("Data da retirada *").fill(d);
+await page.getByLabel("Horário *").selectOption("11:00");
 const [popup] = await Promise.all([page.waitForEvent("popup"), page.getByRole("button", { name: "Enviar pelo WhatsApp" }).click()]);
 await page.getByText("Recebemos seu pedido").waitFor({ timeout: 15000 });
 await popup.waitForURL(/wa\.me|whatsapp/, { timeout: 15000 }).catch(() => {});
@@ -167,7 +192,7 @@ const before = await admin.locator("li").count();
 const res = await fetch(`${sbUrl}/rest/v1/rpc/create_order`, {
   method: "POST",
   headers: { apikey: ANON, "Content-Type": "application/json" },
-  body: JSON.stringify({ p_order: { channel: "site", customer_name: "Tempo Real", phone: "21933332222", fulfillment: "retirada", payment: "pix", desired_at: new Date(Date.now() + 3 * 86400_000).toISOString(), items: [{ product_id: "00000000-0000-4000-8000-000200000001", portion_id: "00000000-0000-4000-8000-000300000101", flavors: ["Mini hot dog"], quantity: 1 }] } }),
+  body: JSON.stringify({ p_order: { channel: "site", customer_name: "Tempo Real", phone: "21933332222", fulfillment: "retirada", payment: "pix", desired_at: `${nextOpen(3)}T15:00:00-03:00`, items: [{ product_id: "00000000-0000-4000-8000-000200000001", portion_id: "00000000-0000-4000-8000-000300000101", flavors: ["Mini hot dog"], quantity: 1 }] } }),
 });
 const rt = await res.json();
 await admin.locator("li").getByText(`nº ${rt.number}`, { exact: true }).waitFor({ timeout: 15000 });
@@ -219,6 +244,34 @@ ok(await site.getByRole("button", { name: /Muçarela.*esgotado/i }).isDisabled()
 await admin.getByRole("button", { name: "Esgotado" }).first().click();
 await admin.getByRole("button", { name: "Salvar produto" }).click();
 await admin.getByText("Produto salvo!").last().waitFor();
+
+// ---------------------------------------------------------------- Horários
+const sun = nextSunday(4); // domingo com antecedência suficiente até para bolo (3 dias)
+const rej = await fetch(`${sbUrl}/rest/v1/rpc/create_order`, {
+  method: "POST",
+  headers: { apikey: ANON, "Content-Type": "application/json" },
+  body: JSON.stringify({ p_order: { channel: "site", customer_name: "Domingo Teste", phone: "21933331111", fulfillment: "retirada", payment: "pix", desired_at: `${sun}T12:00:00-03:00`, items: [{ product_id: "00000000-0000-4000-8000-000200000001", portion_id: "00000000-0000-4000-8000-000300000101", flavors: ["Mini hot dog"], quantity: 1 }] } }),
+});
+ok(!rej.ok && /fechada/.test((await rej.json()).message ?? ""), "Banco recusa pedido para domingo");
+await admin.goto(`${BASE}/admin/horarios`);
+await admin.getByLabel("Data", { exact: true }).fill(sun);
+await admin.getByLabel("Abre às", { exact: true }).fill("10:00");
+await admin.getByLabel("Fecha às", { exact: true }).fill("14:00");
+await admin.getByRole("button", { name: "Adicionar data especial" }).click();
+await admin.getByText("Horários salvos!").waitFor();
+const cakeSlots = async () => {
+  await site.goto(BASE, { waitUntil: "networkidle" });
+  await site.locator("#doces").scrollIntoViewIfNeeded();
+  await site.getByRole("button", { name: "Ver Bolos de Festa" }).click();
+  await site.getByLabel("Data da retirada/entrega *").fill(sun);
+  return site.getByLabel("Horário *").locator("option").evaluateAll((os) => os.map((o) => o.value).filter(Boolean));
+};
+let sl = await cakeSlots();
+ok(sl[0] === "10:00" && sl[sl.length - 1] === "14:00", `Domingo especial aberto no site (${sl[0]}…${sl[sl.length - 1]})`);
+await admin.getByRole("button", { name: `Remover ${sun}` }).click();
+await admin.getByText("Horários salvos!").last().waitFor();
+sl = await cakeSlots();
+ok(sl.length === 0, "Removendo a data especial, o domingo volta a fechar");
 
 // ---------------------------------------------------------------- Fotos: apagar
 

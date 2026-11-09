@@ -10,10 +10,12 @@ import { Sheet } from "./Sheet";
 import { PillButton } from "@/components/ui/PillButton";
 import { submitOrder } from "@/app/actions/orders";
 import {
-  fryLabels, isValidPhone, localInputToIso, maskPhone, minDateTimeLocal, money,
+  fryLabels, isValidPhone, localInputToIso, maskPhone, money,
 } from "@/lib/format";
 import { orderMessage, waLink } from "@/lib/whatsapp";
 import type { Fulfillment, PaymentMethod } from "@/lib/types";
+import { DateTimeFields } from "./DateTimeFields";
+import { timeSlots } from "@/lib/hours";
 
 type Step = "sacola" | "dados" | "pronto";
 
@@ -27,7 +29,8 @@ export function CartPanel() {
     address: "",
     fulfillment: "retirada" as Fulfillment,
     payment: "pix" as PaymentMethod,
-    desired_at: "",
+    date: "",
+    time: "",
     notes: "",
     website: "",
   });
@@ -54,7 +57,7 @@ export function CartPanel() {
     name: form.name.trim().length < 3 ? "Informe seu nome completo." : "",
     phone: !isValidPhone(form.phone) ? "Informe um telefone válido com DDD." : "",
     address: form.fulfillment === "entrega" && form.address.trim().length < 8 ? "Informe o endereço completo." : "",
-    desired_at: !form.desired_at ? "Escolha a data e o horário." : "",
+    desired_at: !form.date || !form.time || !timeSlots(s, form.date, s.min_order_notice_hours).includes(form.time) ? "Escolha a data e o horário." : "",
   };
   const valid = Object.values(errors).every((e) => !e);
 
@@ -72,7 +75,7 @@ export function CartPanel() {
       address: form.address,
       fulfillment: form.fulfillment,
       payment: form.payment,
-      desired_at: localInputToIso(form.desired_at),
+      desired_at: localInputToIso(`${form.date}T${form.time}`),
       notes: form.notes,
       website: form.website,
       items: items.map((i) => ({
@@ -102,7 +105,7 @@ export function CartPanel() {
           address: form.address,
           fulfillment: form.fulfillment,
           payment: form.payment,
-          desired_at: localInputToIso(form.desired_at),
+          desired_at: localInputToIso(`${form.date}T${form.time}`),
           notes: form.notes,
           items,
           subtotal: res.subtotal,
@@ -248,10 +251,17 @@ export function CartPanel() {
             </div>
           )}
           <div>
-            <label className="label" htmlFor="c-data">Data e horário desejados *</label>
-            <input id="c-data" type="datetime-local" className="field" min={minDateTimeLocal(s.min_order_notice_hours)} value={form.desired_at} onChange={(e) => set("desired_at", e.target.value)} aria-invalid={tried && !!errors.desired_at} />
-            <p className="hint">Pedidos com pelo menos {s.min_order_notice_hours}h de antecedência. {s.opening_hours}</p>
-            {tried && errors.desired_at && <p className="error-text">{errors.desired_at}</p>}
+            <DateTimeFields
+              settings={s}
+              idPrefix="c"
+              date={form.date}
+              time={form.time}
+              onChange={(v) => setForm((f) => ({ ...f, ...v }))}
+              minHoursAhead={s.min_order_notice_hours}
+              showErrors={tried}
+              dateLabel={form.fulfillment === "entrega" ? "Data da entrega *" : "Data da retirada *"}
+            />
+            <p className="hint">Pedidos com pelo menos {s.min_order_notice_hours}h de antecedência.</p>
           </div>
           <fieldset>
             <legend className="label">Forma de pagamento *</legend>

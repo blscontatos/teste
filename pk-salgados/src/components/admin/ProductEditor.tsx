@@ -174,7 +174,7 @@ export function ProductEditor({ id }: { id?: string }) {
               <div>
                 <h2 className="font-semibold text-navy">Porções e preços</h2>
                 <p className="text-xs text-muted">
-                  {isFried ? "Para cada porção, informe o preço congelado e o preço frito." : "Ex.: “20 unidades — R$ 21,00”."} Deixe “Máx. sabores” vazio para usar o limite geral.
+                  {isFried ? "Para cada porção, informe o preço congelado e o preço frito." : "Ex.: “20 unidades — R$ 21,00”."} Regra da loja: 1 sabor a cada 20 unidades (20 un = 1, 50 un = 2, 100 un = 5). Deixe “Máx. sabores” vazio para usar o limite geral.
                 </p>
               </div>
               <SortableList
@@ -185,7 +185,11 @@ export function ProductEditor({ id }: { id?: string }) {
                     <label className="col-span-2 sm:col-span-1"><span className="text-[0.7rem] font-semibold text-muted">Porção</span>
                       <input className="field" value={po.label} onChange={(e) => setPortion(po.id, { label: e.target.value })} placeholder="50 unidades" /></label>
                     <label><span className="text-[0.7rem] font-semibold text-muted">Unidades</span>
-                      <input className="field" inputMode="numeric" value={po.units ?? ""} onChange={(e) => setPortion(po.id, { units: toNumber(e.target.value) })} /></label>
+                      <input className="field" inputMode="numeric" value={po.units ?? ""} onChange={(e) => {
+                        const units = toNumber(e.target.value);
+                        // Regra da loja: 1 sabor a cada 20 unidades (preenche se o limite estiver vazio)
+                        setPortion(po.id, { units, ...(po.max_flavors == null && units ? { max_flavors: Math.max(1, Math.floor(units / 20)) } : {}) });
+                      }} /></label>
                     {isFried ? (
                       <>
                         <label><span className="text-[0.7rem] font-semibold text-muted">Congelado R$</span>

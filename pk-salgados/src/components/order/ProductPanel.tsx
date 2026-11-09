@@ -234,7 +234,13 @@ export function ProductDetail({ product }: { product: Product }) {
               </span>
             </legend>
             <p className="hint mb-2">
-              {maxFlavors === 1 ? "Escolha 1 sabor." : `Escolha até ${maxFlavors} sabores.`} A quantidade é dividida entre eles.
+              {(() => {
+                const perTray = portion?.max_flavors ?? product.max_flavors;
+                const tray = portion?.label ? ` de ${portion.label}` : "";
+                if (maxFlavors === 1) return `Escolha 1 sabor para a bandeja${tray}.`;
+                if (qty > 1) return `Escolha até ${maxFlavors} sabores (${perTray} por bandeja${tray}).`;
+                return `Escolha até ${maxFlavors} sabores. A quantidade é dividida entre eles.`;
+              })()}
             </p>
             <div className="flex flex-wrap gap-2">
               {product.flavors.map((f) => {

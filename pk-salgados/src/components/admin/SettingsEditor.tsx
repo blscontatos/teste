@@ -28,7 +28,9 @@ export function SettingsEditor() {
     const digits = raw === "55" ? "" : raw;
     if (digits && (digits.length < 12 || digits.length > 13)) return toast("WhatsApp: informe com DDD, ex.: (21) 98271-2575.", "erro");
     setSaving(true);
-    const { error } = await sb.from("settings").upsert({ id: 1, ...next, whatsapp: digits, instagram: next.instagram.replace(/^@/, "") });
+    // Horários são salvos na aba "Horários": não regrava aqui para não desfazer o que foi salvo lá.
+    const { weekly_hours: _w, special_hours: _sp, opening_hours: _oh, ...rest } = next;
+    const { error } = await sb.from("settings").update({ ...rest, whatsapp: digits, instagram: next.instagram.replace(/^@/, "") }).eq("id", 1);
     setSaving(false);
     if (error) return toast("Não foi possível salvar.", "erro");
     setS(next);
@@ -83,10 +85,9 @@ export function SettingsEditor() {
             <label className="label" htmlFor="cfg-maps">Link do Google Maps (opcional)</label>
             <input id="cfg-maps" className="field" value={s.maps_url} onChange={(e) => set("maps_url", e.target.value)} />
           </div>
-          <div>
-            <label className="label" htmlFor="cfg-hora">Horário de funcionamento</label>
-            <input id="cfg-hora" className="field" value={s.opening_hours} onChange={(e) => set("opening_hours", e.target.value)} />
-          </div>
+          <p className="rounded-2xl bg-cream-50 px-3 py-2 text-sm text-navy">
+            Horário de funcionamento: agora fica na aba <a href="/admin/horarios" className="font-semibold underline">Horários</a>.
+          </p>
         </Card>
 
         <div className="space-y-5">

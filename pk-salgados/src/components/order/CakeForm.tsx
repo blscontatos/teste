@@ -11,6 +11,8 @@ import { submitCakeOrder } from "@/app/actions/orders";
 import { hasSupabase } from "@/lib/env";
 import { isValidPhone, localInputToIso, maskPhone, minDateLocal } from "@/lib/format";
 import { cakeMessage, waLink } from "@/lib/whatsapp";
+import { timeSlots } from "@/lib/hours";
+import { DateTimeFields } from "./DateTimeFields";
 import type { Product } from "@/lib/types";
 
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -59,7 +61,7 @@ export function CakeForm({ product }: { product: Product }) {
     phone: !isValidPhone(form.phone) ? "Informe um telefone válido com DDD." : "",
     address: form.address.trim().length < 8 ? "Informe o endereço completo." : "",
     date: !form.date ? "Escolha a data." : form.date < minDate ? `Escolha uma data a partir de ${minDate.split("-").reverse().join("/")}.` : "",
-    time: !form.time ? "Escolha o horário." : "",
+    time: !form.time || !timeSlots(s, form.date, 0).includes(form.time) ? "Escolha o horário." : "",
     inspiration: hasInspiration === null ? "Responda se você tem um modelo de inspiração." : "",
     photo: hasInspiration && !photo ? "Envie a foto do modelo de inspiração." : "",
   };
@@ -270,19 +272,16 @@ export function CakeForm({ product }: { product: Product }) {
           <textarea id="b-end" className="field min-h-20" autoComplete="street-address" placeholder="Rua, número, complemento, bairro" value={form.address} onChange={(e) => set("address", e.target.value)} aria-invalid={tried && !!errors.address} />
           {tried && errors.address && <p className="error-text">{errors.address}</p>}
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="label" htmlFor="b-data">Data *</label>
-            <input id="b-data" type="date" className="field" min={minDate} value={form.date} onChange={(e) => set("date", e.target.value)} aria-invalid={tried && !!errors.date} />
-            {tried && errors.date && <p className="error-text">{errors.date}</p>}
-          </div>
-          <div>
-            <label className="label" htmlFor="b-hora">Horário *</label>
-            <input id="b-hora" type="time" className="field" value={form.time} onChange={(e) => set("time", e.target.value)} aria-invalid={tried && !!errors.time} />
-            {tried && errors.time && <p className="error-text">{errors.time}</p>}
-          </div>
-        </div>
-        <p className="hint -mt-2">Retirada ou entrega · {s.opening_hours}</p>
+        <DateTimeFields
+          settings={s}
+          idPrefix="b"
+          date={form.date}
+          time={form.time}
+          onChange={(v) => setForm((f) => ({ ...f, ...v }))}
+          minDate={minDate}
+          showErrors={tried}
+          dateLabel="Data da retirada/entrega *"
+        />
 
         {Select({ id: "b-tam", label: "Tamanho / quantidade de pessoas", k: "size", options: s.cake_sizes })}
         <div className="grid gap-4 sm:grid-cols-2">

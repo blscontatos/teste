@@ -269,7 +269,8 @@ const cakeSlots = async () => {
 let sl = await cakeSlots();
 ok(sl[0] === "10:00" && sl[sl.length - 1] === "14:00", `Domingo especial aberto no site (${sl[0]}…${sl[sl.length - 1]})`);
 await admin.getByRole("button", { name: `Remover ${sun}` }).click();
-await admin.getByText("Horários salvos!").last().waitFor();
+await admin.getByRole("button", { name: `Remover ${sun}` }).waitFor({ state: "detached" });
+await admin.waitForTimeout(1500); // espera o site ser atualizado
 sl = await cakeSlots();
 ok(sl.length === 0, "Removendo a data especial, o domingo volta a fechar");
 

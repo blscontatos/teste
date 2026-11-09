@@ -17,8 +17,8 @@ const SECTIONS: { key: ContentKey; title: string; fields: Field[] }[] = [
     title: "Marca e logo",
     fields: [
       { key: "name", label: "Nome da loja" },
-      { key: "logo_url", label: "Logo (fundo claro)", type: "image", aspect: 410 / 240, hint: "De preferência PNG sem fundo." },
-      { key: "logo_white_url", label: "Logo para fundo azul (rodapé)", type: "image", aspect: 410 / 240 },
+      { key: "logo_url", label: "Logo (fundo claro)", type: "image", aspect: 578 / 447, hint: "De preferência PNG sem fundo." },
+      { key: "logo_white_url", label: "Logo para fundo azul (rodapé)", type: "image", aspect: 578 / 447 },
     ],
   },
   {
@@ -30,10 +30,8 @@ const SECTIONS: { key: ContentKey; title: string; fields: Field[] }[] = [
       { key: "title_line2", label: "Título — linha 2 (dourada)" },
       { key: "subtitle", label: "Subtítulo", type: "textarea" },
       { key: "cta_label", label: "Texto do botão" },
-      { key: "image_main", label: "Imagem principal (bolo)", type: "image", aspect: 3 / 4 },
-      { key: "image_main_alt", label: "Descrição da imagem principal (acessibilidade)" },
-      { key: "image_secondary", label: "Imagem redonda (coxinha)", type: "image", aspect: 1 },
-      { key: "image_secondary_alt", label: "Descrição da imagem redonda" },
+      { key: "image_main", label: "Foto do topo (bolo e coxinha)", type: "image", aspect: 1288 / 782, hint: "Fica na metade direita do topo, de ponta a ponta. Use uma foto larga (proporção parecida com 16:10), de preferência com 2000 px ou mais." },
+      { key: "image_main_alt", label: "Descrição da foto (acessibilidade)" },
     ],
   },
   { key: "salgados", title: "Seção “Nossos Salgados”", fields: [{ key: "eyebrow", label: "Texto pequeno acima" }, { key: "title", label: "Título" }, { key: "subtitle", label: "Subtítulo", type: "textarea" }] },

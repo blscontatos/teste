@@ -1,13 +1,28 @@
 "use client";
-// Seção principal: selo, título, subtítulo, botão e imagens (bolo + coxinha) com parallax leve.
+// Seção principal, no layout aprovado pela loja: texto à esquerda (selo com traços dourados,
+// título em duas linhas, pincelada dourada, subtítulo e botão do WhatsApp) e a foto do bolo
+// com a coxinha ocupando a metade direita, de ponta a ponta, por trás do cabeçalho.
+// As medidas seguem as proporções do modelo (1024 × 391 px).
 import Image from "next/image";
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useShop } from "@/components/order/ShopProvider";
-import { PillButton } from "@/components/ui/PillButton";
-import { Leaves, Wave } from "@/components/ui/Decor";
+import { WhatsAppIcon } from "@/components/ui/icons";
+import { Wave } from "@/components/ui/Decor";
 import { waLink } from "@/lib/whatsapp";
+
+/** Cor do fundo da foto do modelo, para a foto "derreter" na área do texto. */
+const HERO_BG = "#FAECDE";
+
+/** Pincelada dourada embaixo do título. */
+function Swash({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 300 18" preserveAspectRatio="none" aria-hidden className={className}>
+      <path d="M2 13 C 70 4, 170 2, 298 6 C 200 7, 110 10, 4 16 Z" fill="#E8A33A" />
+    </svg>
+  );
+}
 
 export function Hero() {
   const { data } = useShop();
@@ -15,107 +30,78 @@ export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const yMain = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 70]);
-  const ySec = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : -50]);
-
+  const yImg = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 60]);
   const ease = [0.22, 1, 0.36, 1] as const;
-  // Quantidade de sabores cadastrados (arredondada para baixo, de 10 em 10).
-  const totalFlavors = data.products.reduce((s, p) => s + p.flavors.length, 0);
-  const flavorsBadge = totalFlavors >= 10 ? `+${Math.floor(totalFlavors / 10) * 10}` : String(totalFlavors);
+  const orderLink = data.settings.whatsapp ? waLink(data.settings.whatsapp, "Olá! Gostaria de fazer um pedido.") : "#salgados";
+
+  const fade = (delay: number, y = 22) => ({
+    initial: { opacity: 0, y },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.7, delay, ease },
+  });
 
   return (
-    <section id="inicio" ref={ref} className="relative overflow-hidden bg-cream pt-[68px] sm:pt-[76px]">
-      {/* Mancha azul no canto, como no layout */}
-      <div aria-hidden className="absolute -right-16 -top-24 hidden h-[520px] w-[520px] rounded-full bg-navy md:block" />
-      <div aria-hidden className="absolute -right-16 -top-24 hidden h-[532px] w-[532px] rounded-full border-4 border-gold/80 md:block" />
-      <Leaves className="absolute -left-4 bottom-10 hidden h-64 w-28 opacity-70 md:block" />
+    <section id="inicio" ref={ref} className="relative overflow-hidden" style={{ backgroundColor: HERO_BG }}>
+      <div className="relative lg:h-[38.2vw]">
+        {/* Foto: metade direita no computador; em cima, largura total, no celular */}
+        <motion.div
+          style={{ y: yImg }}
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.1, ease }}
+          className="relative aspect-[1288/782] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:aspect-auto lg:w-[63%]"
+        >
+          {h.image_main && (
+            <Image src={h.image_main} alt={h.image_main_alt} fill priority sizes="(max-width: 1024px) 100vw, 63vw" className="object-cover object-right" />
+          )}
+          {/* degradê para a foto se misturar com o fundo do texto */}
+          <div aria-hidden className="absolute inset-y-0 left-0 hidden w-[12%] lg:block" style={{ background: `linear-gradient(to right, ${HERO_BG}, transparent)` }} />
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-[18%] lg:hidden" style={{ background: `linear-gradient(to top, ${HERO_BG}, transparent)` }} />
+        </motion.div>
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-8 px-4 pb-6 pt-8 sm:px-6 md:grid-cols-2 md:gap-6 md:pb-16 md:pt-16">
-        <div className="relative z-10 text-center md:text-left">
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease }}
-            className="inline-flex items-center gap-2 rounded-full border border-gold/60 bg-white/70 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-navy"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-gold" aria-hidden />
+        {/* Texto */}
+        <div className="relative z-10 flex flex-col items-center px-5 pb-10 text-center lg:absolute lg:inset-y-0 lg:left-0 lg:w-[46%] lg:items-start lg:justify-end lg:px-0 lg:pb-[1.85vw] lg:pl-[4.4vw] lg:text-left">
+          <motion.p {...fade(0, 14)} className="flex items-center gap-3 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-navy lg:text-[clamp(0.72rem,1.07vw,1rem)]">
+            <span aria-hidden className="h-[2px] w-8 rounded bg-gold lg:w-[5.6vw] lg:max-w-[90px]" />
             {h.badge}
+            <span aria-hidden className="h-[2px] w-8 rounded bg-gold lg:w-[3.2vw] lg:max-w-[52px]" />
           </motion.p>
-          <h1 className="mt-5 font-title text-[2.6rem] leading-[1.05] text-navy sm:text-6xl lg:text-7xl">
-            <motion.span
-              className="block"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1, ease }}
-            >
+
+          <h1 className="mt-3 font-serif font-extrabold leading-[1.02] text-navy lg:mt-[0.9vw]">
+            <motion.span {...fade(0.1, 30)} className="block text-[1.8rem] sm:text-5xl lg:text-[clamp(1.9rem,3.55vw,4.3rem)]">
               {h.title_line1}
             </motion.span>
-            <motion.span
-              className="relative block text-gold-600"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.25, ease }}
-            >
+            <motion.span {...fade(0.22, 30)} className="block italic text-[2.15rem] sm:text-6xl lg:text-[clamp(2.3rem,4.45vw,5.3rem)]">
               {h.title_line2}
             </motion.span>
           </h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4, ease }}
-            className="mx-auto mt-5 max-w-md text-base text-muted sm:text-lg md:mx-0"
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 0.45, ease }}
+            className="mt-1 w-[78%] max-w-[360px] origin-left lg:ml-[10.5vw] lg:mt-[0.2vw] lg:w-[24.5vw] lg:max-w-[480px]"
           >
+            <Swash className="h-3 w-full lg:h-[1.3vw]" />
+          </motion.div>
+
+          <motion.p {...fade(0.35)} className="mt-4 max-w-[30rem] text-[0.98rem] leading-relaxed text-ink/85 lg:mt-[1.1vw] lg:max-w-[29.6vw] lg:text-[clamp(0.78rem,1.3vw,1.3rem)] lg:leading-[1.55]">
             {h.subtitle}
           </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.55, ease }}
-            className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:justify-start"
-          >
-            <PillButton href="#salgados" size="lg" arrow>
-              {h.cta_label}
-            </PillButton>
-            {data.settings.whatsapp && (
-              <PillButton href={waLink(data.settings.whatsapp, "Olá! Gostaria de fazer um pedido.")} variant="outline" size="lg" whatsapp>
-                Pedir no WhatsApp
-              </PillButton>
-            )}
-          </motion.div>
-        </div>
 
-        {/* Imagens */}
-        <div className="relative mx-auto h-[330px] w-full max-w-[460px] sm:h-[440px] md:h-[520px] md:max-w-none">
-          {/* No celular, o círculo azul fica atrás das fotos */}
-          <div aria-hidden className="absolute -right-10 top-[4%] aspect-square h-[86%] rounded-full bg-navy md:hidden" />
-          <div aria-hidden className="absolute -right-12 top-[2%] aspect-square h-[90%] rounded-full border-4 border-gold/80 md:hidden" />
-          <motion.div
-            style={{ y: yMain }}
-            initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 0.9, delay: 0.2, ease }}
-            className="absolute right-[6%] top-0 h-[88%] w-[66%] overflow-hidden rounded-[2.5rem] border-[6px] border-white shadow-card-hover"
+          <motion.div {...fade(0.5)} className="w-full lg:w-auto">
+          <motion.a
+            href={orderLink}
+            target={orderLink.startsWith("http") ? "_blank" : undefined}
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.04, boxShadow: "0 14px 28px -10px rgba(11,35,65,0.55)" }}
+            whileTap={{ scale: 0.96 }}
+            className="group mt-6 inline-flex w-full max-w-xs items-center justify-center gap-2.5 rounded-full bg-navy px-6 py-3.5 font-semibold text-white shadow-pill transition-colors hover:bg-navy-700 lg:mt-[1.9vw] lg:w-auto lg:max-w-none lg:gap-[0.8vw] lg:px-[2vw] lg:py-[0.95vw] lg:text-[clamp(0.8rem,1.32vw,1.25rem)]"
           >
-            <Image src={h.image_main} alt={h.image_main_alt} fill priority sizes="(max-width: 768px) 70vw, 34vw" className="object-cover" />
+            <WhatsAppIcon className="h-5 w-5 text-gold lg:h-[2.2vw] lg:max-h-9 lg:w-[2.2vw] lg:max-w-9" />
+            {h.cta_label}
+            <ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 lg:h-[1.4vw] lg:max-h-6 lg:w-[1.4vw] lg:max-w-6" />
+          </motion.a>
           </motion.div>
-          <motion.div
-            style={{ y: ySec }}
-            initial={{ opacity: 0, x: -40, scale: 0.85 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.45, ease }}
-            className="absolute bottom-[2%] left-0 h-[46%] w-[52%] overflow-hidden rounded-full border-[6px] border-white shadow-card-hover"
-          >
-            <Image src={h.image_secondary} alt={h.image_secondary_alt} fill sizes="(max-width: 768px) 50vw, 26vw" className="object-cover" />
-          </motion.div>
-          {totalFlavors > 0 && <motion.div
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.8, type: "spring" }}
-            className="absolute right-0 bottom-[14%] rounded-2xl bg-white px-4 py-3 shadow-card"
-          >
-            <p className="font-title text-xl leading-none text-navy">{flavorsBadge}</p>
-            <p className="text-[0.7rem] font-medium text-muted">sabores</p>
-          </motion.div>}
         </div>
       </div>
       <Wave fill="#FFF7EE" />

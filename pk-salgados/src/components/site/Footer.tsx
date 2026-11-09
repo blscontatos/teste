@@ -23,7 +23,7 @@ export function Footer() {
       <div className="bg-navy">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-10 pt-8 sm:px-6 md:grid-cols-[1.2fr_1fr_1.4fr]">
           <div>
-            <Image src={c.marca.logo_white_url || "/brand/logo-white.png"} alt={c.marca.name} width={410} height={240} className="h-20 w-auto" />
+            <Image src={c.marca.logo_white_url || "/brand/logo-white.png"} alt={c.marca.name} width={578} height={447} className="h-24 w-auto" />
             <p className="mt-4 max-w-xs text-sm text-white/75">{c.rodape.description}</p>
             <div className="mt-5 flex gap-3">
               {s.instagram && (

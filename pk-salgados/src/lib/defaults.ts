@@ -54,20 +54,19 @@ export const defaultSettings: Settings = {
 export const defaultContent: SiteContent = {
   marca: {
     name: "PK Salgados e Doces",
-    logo_url: "/brand/logo.png",
-    logo_white_url: "/brand/logo-white.png",
+    logo_url: "/brand/logo-pk-modelo.png",
+    logo_white_url: "/brand/logo-pk-modelo-white.png",
   },
   hero: {
     badge: "Feito para momentos especiais",
     title_line1: "Pequenos no tamanho.",
     title_line2: "Gigantes no sabor.",
-    subtitle:
-      "Salgados, docinhos e bolos feitos com carinho em Guadalupe, no Rio de Janeiro. Peça pelo site ou pelo WhatsApp e deixe sua festa ainda mais gostosa.",
+    subtitle: "Salgados e doces feitos com muito amor, para tornar seu momento ainda mais especial.",
     cta_label: "Faça seu pedido",
-    image_main: "/images/hero-bolo.webp",
-    image_main_alt: "Bolo de festa decorado com flores",
-    image_secondary: "/images/hero-coxinha.webp",
-    image_secondary_alt: "Coxinhas douradas e crocantes",
+    image_main: "/images/hero-modelo.webp",
+    image_main_alt: "Bolo de chocolate com morangos e uma coxinha dourada",
+    image_secondary: "",
+    image_secondary_alt: "",
   },
   salgados: {
     eyebrow: "Cardápio",

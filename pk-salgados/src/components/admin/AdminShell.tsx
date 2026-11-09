@@ -24,7 +24,7 @@ export function AdminShell({ email, children }: { email: string; children: React
     <ToastProvider>
       <div className="min-h-dvh bg-cream-50 lg:flex">
         <aside className="no-print sticky top-0 hidden h-dvh w-64 shrink-0 flex-col bg-navy p-5 text-white lg:flex">
-          <Image src="/brand/logo-white.png" alt="PK Salgados e Doces" width={410} height={240} className="mx-auto h-16 w-auto" />
+          <Image src="/brand/logo-pk-modelo-white.png" alt="PK Salgados e Doces" width={578} height={447} className="mx-auto h-16 w-auto" />
           <nav className="mt-8 flex-1 space-y-1" aria-label="Painel">
             {LINKS.map(({ href, label, Icon }) => (
               <Link key={href} href={href} className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[0.95rem] font-medium transition ${active(href) ? "bg-gold text-navy" : "text-white/80 hover:bg-white/10"}`}>
@@ -45,7 +45,7 @@ export function AdminShell({ email, children }: { email: string; children: React
 
         <div className="min-w-0 flex-1 pb-24 lg:pb-0">
           <header className="no-print sticky top-0 z-30 flex items-center justify-between border-b border-navy/10 bg-cream-50/95 px-4 py-2.5 backdrop-blur lg:hidden">
-            <Image src="/brand/logo.png" alt="PK" width={410} height={240} className="h-10 w-auto" />
+            <Image src="/brand/logo-pk-modelo.png" alt="PK" width={578} height={447} className="h-10 w-auto" />
             <div className="flex items-center gap-1">
               <a href="/" target="_blank" className="rounded-full px-3 py-2 text-sm font-semibold text-navy">Ver site</a>
               <form action="/auth/sair" method="post">

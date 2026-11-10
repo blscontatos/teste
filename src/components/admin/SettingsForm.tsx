@@ -72,7 +72,7 @@ export function SettingsForm({ settings, isAdmin, profileName }: { settings: Sit
             <span className="field-label">Texto</span>
             <textarea className="field min-h-48" value={s.about_text} onChange={(e) => set("about_text", e.target.value)} maxLength={4000} />
           </label>
-          <ImageSetting label="Fotografia da seção Sobre" value={s.about_image_url} onChange={(v) => set("about_image_url", v)} folder="about" />
+          <ImageSetting label="Fotografia da seção Sobre" value={s.about_image_url} onChange={(v) => set("about_image_url", v)} folder="about" allowCutout />
         </div>
       </Card>
 
@@ -119,7 +119,20 @@ function Field({
   );
 }
 
-function ImageSetting({ label, value, onChange, folder }: { label: string; value: string; onChange: (v: string) => void; folder: string }) {
+function ImageSetting({
+  label,
+  value,
+  onChange,
+  folder,
+  allowCutout = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  folder: string;
+  allowCutout?: boolean;
+}) {
+  const [cutout, setCutout] = useState(value.includes("/site/retrato-"));
   const toast = useToast();
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -127,7 +140,8 @@ function ImageSetting({ label, value, onChange, folder }: { label: string; value
     setBusy(true);
     try {
       const { blob, type } = await optimizeImage(file, 2400);
-      const path = `site/${folder}-${crypto.randomUUID()}.${type === "image/webp" ? "webp" : "jpg"}`;
+      const prefix = allowCutout && cutout ? "retrato" : folder;
+      const path = `site/${prefix}-${crypto.randomUUID()}.${type === "image/webp" ? "webp" : "jpg"}`;
       const supabase = createClient();
       const { error } = await supabase.storage.from("property-media").upload(path, blob, { contentType: type, cacheControl: "31536000" });
       if (error) throw new Error(error.message);
@@ -159,6 +173,14 @@ function ImageSetting({ label, value, onChange, folder }: { label: string; value
         </div>
         <input ref={ref} type="file" accept="image/*" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
       </div>
+      {allowCutout && (
+        <label className="mt-3 flex items-start gap-2 text-sm text-ink/70">
+          <input type="checkbox" className="mt-0.5 h-4 w-4 accent-[#b8955a]" checked={cutout} onChange={(e) => setCutout(e.target.checked)} />
+          <span>
+            Foto recortada (sem fundo, em PNG). Marque antes de enviar: o retrato é exibido sobre um painel dourado com o nome do corretor.
+          </span>
+        </label>
+      )}
     </div>
   );
 }

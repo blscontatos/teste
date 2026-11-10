@@ -13,21 +13,46 @@ export const DEFAULT_ABOUT = [
 
 export function About({ settings, showLink = true }: { settings: SiteSettings; showLink?: boolean }) {
   const paragraphs = settings.about_text ? settings.about_text.split(/\n\s*\n/).filter(Boolean) : DEFAULT_ABOUT;
+  // Retrato recortado (enviado com "Foto recortada (sem fundo)" marcado) ganha o painel dourado
+  const isPortrait = !!settings.about_image_url && settings.about_image_url.includes("/site/retrato-");
   return (
     <section id="sobre" className="relative overflow-hidden bg-ink py-24 text-white sm:py-32">
       <div className="grain absolute inset-0" />
       <div className="container-luxe relative grid items-center gap-14 lg:grid-cols-2 lg:gap-24">
         <Reveal className="relative">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[36px]">
-            {settings.about_image_url ? (
-              <Image src={settings.about_image_url} alt="Luiz Vieira Negócios Imobiliários" fill sizes="(min-width:1024px) 45vw, 100vw" className="object-cover" />
-            ) : (
-              <ArtPlaceholder className="absolute inset-0" />
-            )}
-          </div>
-          <div className="absolute -right-3 -bottom-8 hidden max-w-[260px] rounded-[24px] bg-gold p-6 text-ink shadow-2xl sm:block lg:-right-10">
-            <p className="font-display text-2xl leading-snug italic">“Cada cliente, uma história. Cada imóvel, uma escolha cuidadosa.”</p>
-          </div>
+          {isPortrait ? (
+            /* Retrato recortado (sem fundo) sobre painel dourado */
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[36px] bg-[radial-gradient(120%_90%_at_50%_15%,#efe5d2_0%,#d9c39a_38%,#b8955a_72%,#7d6236_100%)]">
+              <div aria-hidden className="absolute inset-x-10 top-10 bottom-0 rounded-t-full border border-white/35" />
+              <div aria-hidden className="absolute inset-x-20 top-24 bottom-0 rounded-t-full border border-white/20" />
+              <Image
+                src={settings.about_image_url}
+                alt="Luiz Vieira, corretor de imóveis"
+                fill
+                sizes="(min-width:1024px) 45vw, 100vw"
+                className="object-contain object-bottom drop-shadow-[0_30px_40px_rgba(13,13,12,0.35)]"
+              />
+            </div>
+          ) : (
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[36px]">
+              {settings.about_image_url ? (
+                <Image src={settings.about_image_url} alt="Luiz Vieira Negócios Imobiliários" fill sizes="(min-width:1024px) 45vw, 100vw" className="object-cover" />
+              ) : (
+                <ArtPlaceholder className="absolute inset-0" />
+              )}
+            </div>
+          )}
+          {isPortrait ? (
+            <div className="absolute -right-3 -bottom-8 rounded-[24px] border border-gold/40 bg-ink px-6 py-5 shadow-2xl sm:-right-6 lg:-right-10">
+              <p className="font-display text-2xl text-white">Luiz Vieira</p>
+              <p className="mt-1 text-[11px] font-semibold tracking-[0.22em] text-gold-light uppercase">Corretor de imóveis</p>
+              {settings.creci && <p className="mt-1 text-xs text-white/55">CRECI {settings.creci}</p>}
+            </div>
+          ) : (
+            <div className="absolute -right-3 -bottom-8 hidden max-w-[260px] rounded-[24px] bg-gold p-6 text-ink shadow-2xl sm:block lg:-right-10">
+              <p className="font-display text-2xl leading-snug italic">“Cada cliente, uma história. Cada imóvel, uma escolha cuidadosa.”</p>
+            </div>
+          )}
         </Reveal>
         <div>
           <Reveal>

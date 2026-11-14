@@ -314,7 +314,7 @@ await admin.waitForTimeout(800);
 await site.goto(BASE, { waitUntil: "networkidle" });
 await site.locator("#doces").scrollIntoViewIfNeeded();
 await site.getByRole("button", { name: "Ver Bolos de Festa" }).click();
-ok(await site.getByText("Bolos que já fizemos").isVisible(), "Galeria de bolos no formulário");
+ok(await site.getByText("Bolos que já fizemos").waitFor({ timeout: 8000 }).then(() => true, () => false), "Galeria de bolos no formulário");
 await site.getByRole("button", { name: "Ver bolo 1 em tamanho grande" }).click();
 await site.getByRole("button", { name: "Quero um parecido" }).click();
 ok((await site.getByLabel("Tema / observações").inputValue()).includes("nº 1"), "“Quero um parecido” preenche o tema");

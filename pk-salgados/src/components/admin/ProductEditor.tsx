@@ -21,12 +21,12 @@ const blank: Omit<Product, "id" | "portions" | "flavors" | "sort_order"> = {
   max_flavors: 2, available: true, visible: true, featured: false,
 };
 
-export function ProductEditor({ id }: { id?: string }) {
+export function ProductEditor({ id, initialCategoryId }: { id?: string; initialCategoryId?: string }) {
   const router = useRouter();
   const sb = useMemo(() => createClient(), []);
   const toast = useToast();
   const [cats, setCats] = useState<Category[]>([]);
-  const [p, setP] = useState(blank);
+  const [p, setP] = useState({ ...blank, category_id: initialCategoryId ?? null });
   const [portions, setPortions] = useState<EditPortion[]>([]);
   const [flavors, setFlavors] = useState<EditFlavor[]>([]);
   const [removed, setRemoved] = useState<{ portions: string[]; flavors: string[] }>({ portions: [], flavors: [] });
@@ -35,7 +35,13 @@ export function ProductEditor({ id }: { id?: string }) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    sb.from("categories").select("*").order("sort_order").then(({ data }) => setCats((data ?? []) as Category[]));
+    sb.from("categories").select("*").order("sort_order").then(({ data }) => {
+      const list = (data ?? []) as Category[];
+      setCats(list);
+      // Produto novo vindo de "Adicionar produto nesta categoria": categoria de fritos já começa como "Salgado frito".
+      const cat = !id && initialCategoryId ? list.find((c) => c.id === initialCategoryId) : undefined;
+      if (cat && /frit/i.test(cat.name)) setP((x) => ({ ...x, kind: "frito" }));
+    });
     if (!id) return;
     sb.from("products")
       .select("*, portions:product_portions(*), flavors:product_flavors(*)")
@@ -49,7 +55,7 @@ export function ProductEditor({ id }: { id?: string }) {
         setFlavors([...prod.flavors].sort((a, b) => a.sort_order - b.sort_order));
         setLoading(false);
       });
-  }, [id, sb, router]);
+  }, [id, sb, router, initialCategoryId]);
 
   const set = <K extends keyof typeof p>(k: K, v: (typeof p)[K]) => setP((x) => ({ ...x, [k]: v }));
   const setPortion = (pid: string, patch: Partial<EditPortion>) => setPortions((l) => l.map((x) => (x.id === pid ? { ...x, ...patch } : x)));

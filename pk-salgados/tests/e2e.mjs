@@ -353,6 +353,24 @@ await admin.getByText("Configurações salvas!").last().waitFor();
 const rejSite = await fetch(`${sbUrl}/rest/v1/rpc/create_order`, { method: "POST", headers: { apikey: ANON, "Content-Type": "application/json" }, body: "{}" });
 ok(rejSite.status >= 400, "Banco valida o pedido (chamada vazia recusada)");
 
+// ---------------------------------------------------------------- Botões de adicionar + Pastel Frito
+await admin.goto(`${BASE}/admin/produtos`);
+await admin.getByRole("button", { name: "categorias", exact: true }).click();
+await admin.getByRole("button", { name: "Adicionar categoria em Nossos Doces" }).click();
+ok((await admin.getByRole("dialog", { name: "Nova categoria" }).isVisible()) && (await admin.getByLabel("Aparece em").inputValue()) === "doce", "Categorias: botão 'Adicionar categoria' abre com a seção certa");
+await admin.keyboard.press("Escape");
+await admin.getByRole("button", { name: "produtos", exact: true }).click();
+await admin.locator("section", { has: admin.getByRole("heading", { name: /^Pastel Frito ·/ }) }).getByRole("link", { name: "Adicionar produto nesta categoria" }).click();
+await admin.waitForURL(/\/admin\/produtos\/novo\?categoria=/);
+await admin.getByLabel("Categoria").waitFor();
+await admin.waitForTimeout(800);
+const catSel = await admin.getByLabel("Categoria").evaluate((el) => el.options[el.selectedIndex]?.text ?? "");
+ok(catSel.startsWith("Pastel Frito") && (await admin.getByLabel("Tipo de produto").inputValue()) === "frito", "Produto novo já vem com a categoria escolhida");
+await site.goto(BASE, { waitUntil: "networkidle" });
+ok((await site.getByRole("button", { name: "Ver Mini Pastel Aperitivo" }).count()) === 1 && (await site.getByRole("button", { name: "Ver Pastel Frito" }).count()) === 1, "Site: cartões 'Mini Pastel Aperitivo' e 'Pastel Frito'");
+await site.getByRole("button", { name: "Ver Pastel Frito" }).click();
+ok(await site.getByRole("link", { name: /Consultar no WhatsApp/ }).waitFor({ timeout: 8000 }).then(() => true, () => false), "Pastel Frito sem produto abre 'Consultar no WhatsApp'");
+
 // ---------------------------------------------------------------- Fotos: apagar
 
 // 1) Foto enviada e salva num produto (em uso)

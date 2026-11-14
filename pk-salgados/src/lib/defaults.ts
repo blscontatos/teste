@@ -117,7 +117,9 @@ const catSeeds: CatSeed[] = [
   { key: "croissants", section: "salgado", name: "Croissants", slug: "croissants", description: "Mini croissants recheados.", image_url: "/images/cat-croissants.webp" },
   { key: "pastel-forno", section: "salgado", name: "Pastel de Forno", slug: "pastel-de-forno", description: "Frango, carne, camarão, bacalhau e mais.", image_url: "/images/cat-pastel-forno.webp" },
   { key: "fritos", section: "salgado", name: "Salgados Fritos", slug: "salgados-fritos", description: "Coxinha, bolinha de queijo, risoles, quibe… congelados ou fritos.", image_url: "/images/cat-fritos.webp" },
-  { key: "pastel-frito", section: "salgado", name: "Pastéis Fritos", slug: "pasteis-fritos", description: "Queijo ou carne, congelados ou fritos.", image_url: "/images/cat-pastel-frito.webp" },
+  { key: "pastel-frito", section: "salgado", name: "Mini Pastel Aperitivo", slug: "pasteis-fritos", description: "Mini pastéis de queijo ou carne, congelados ou fritos.", image_url: "/images/cat-pastel-frito.webp" },
+  // Pastel grande de feira: sem produto até as donas cadastrarem preço e sabores (no site aparece "Consulte").
+  { key: "pastel-feira", section: "salgado", name: "Pastel Frito", slug: "pastel-frito-de-feira", description: "Pastel grande de feira, crocante e bem recheado.", image_url: "/images/cat-pastel-frito.webp" },
   { key: "especiais", section: "salgado", name: "Salgados Especiais", slug: "salgados-especiais", description: "Bolinho de bacalhau, bolinho de feijoada e empanado de camarão.", image_url: "/images/cat-especiais.webp" },
   { key: "docinhos", section: "doce", name: "Docinhos", slug: "docinhos", description: "Brigadeiro, cajuzinho, beijinho e moranguinho.", image_url: "/images/cat-docinhos.webp" },
   { key: "brigadeiro", section: "doce", name: "Brigadeiro", slug: "brigadeiro", description: "O clássico que não pode faltar.", image_url: "/images/cat-brigadeiro.webp" },
@@ -206,7 +208,7 @@ const prodSeeds: ProdSeed[] = [
     flavors: ["Coxinha", "Bolinha de queijo", "Queijo com presunto", "Queijo com alho", "Risole de carne", "Calabresa", "Quibe", "Quibe recheado", "Risole de camarão", "Coxinha de costela", "Enroladinho de salsicha", "Feijoada", "Aipim com carne", "Aipim com queijo", "Aipim com calabresa", "Coxinha de aipim"],
   },
   {
-    cat: "pastel-frito", kind: "frito", name: "Pastel Frito", slug: "pastel-frito",
+    cat: "pastel-frito", kind: "frito", name: "Mini Pastel Aperitivo", slug: "pastel-frito",
     description: "Pacote com 20 pastéis. Congelados para fritar em casa ou já fritos.",
     image: "/images/cat-pastel-frito.webp", price: 14, max_flavors: 1,
     portions: [{ label: "20 unidades", units: 20, frozen: 14, fried: 17 }],

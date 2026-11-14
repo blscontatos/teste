@@ -111,7 +111,7 @@ export function ProductsManager() {
                 {g.cat && !g.cat.visible && <span className="rounded-full bg-navy/10 px-2 py-0.5 text-xs">categoria oculta</span>}
               </h2>
               {!g.items.length ? (
-                <p className="rounded-2xl border-2 border-dashed border-navy/15 p-4 text-sm text-muted">Nenhum produto. No site aparece “Consulte pelo WhatsApp”.</p>
+                <p className="rounded-2xl border-2 border-dashed border-navy/15 p-4 text-sm text-muted">Nenhum produto. No site aparece “Consulte pelo WhatsApp”. Adicione um produto para vender pelo site.</p>
               ) : (
                 <SortableList
                   items={g.items}
@@ -150,6 +150,14 @@ export function ProductsManager() {
                   )}
                 />
               )}
+              {g.cat && (
+                <Link
+                  href={`/admin/produtos/novo?categoria=${g.cat.id}`}
+                  className="mt-2 flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-navy/20 py-2.5 text-sm font-semibold text-navy transition hover:border-gold hover:bg-white"
+                >
+                  <Plus className="h-4 w-4" /> Adicionar produto nesta categoria
+                </Link>
+              )}
             </section>
           ))}
         </div>
@@ -181,6 +189,13 @@ export function ProductsManager() {
                     </div>
                   )}
                 />
+                <button
+                  type="button"
+                  onClick={() => setEditCat({ section, visible: true })}
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-navy/20 py-3 text-sm font-semibold text-navy transition hover:border-gold hover:bg-white"
+                >
+                  <Plus className="h-4 w-4" /> Adicionar categoria em {section === "salgado" ? "Nossos Salgados" : "Nossos Doces"}
+                </button>
               </section>
             );
           })}

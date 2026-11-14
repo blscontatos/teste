@@ -24,14 +24,15 @@ insert into public.categories (section, name, slug, description, image_url, id, 
   ('salgado', 'Croissants', 'croissants', 'Mini croissants recheados.', '/images/cat-croissants.webp', '00000000-0000-4000-8000-000100000005', true, 4),
   ('salgado', 'Pastel de Forno', 'pastel-de-forno', 'Frango, carne, camarão, bacalhau e mais.', '/images/cat-pastel-forno.webp', '00000000-0000-4000-8000-000100000006', true, 5),
   ('salgado', 'Salgados Fritos', 'salgados-fritos', 'Coxinha, bolinha de queijo, risoles, quibe… congelados ou fritos.', '/images/cat-fritos.webp', '00000000-0000-4000-8000-000100000007', true, 6),
-  ('salgado', 'Pastéis Fritos', 'pasteis-fritos', 'Queijo ou carne, congelados ou fritos.', '/images/cat-pastel-frito.webp', '00000000-0000-4000-8000-000100000008', true, 7),
-  ('salgado', 'Salgados Especiais', 'salgados-especiais', 'Bolinho de bacalhau, bolinho de feijoada e empanado de camarão.', '/images/cat-especiais.webp', '00000000-0000-4000-8000-000100000009', true, 8),
-  ('doce', 'Docinhos', 'docinhos', 'Brigadeiro, cajuzinho, beijinho e moranguinho.', '/images/cat-docinhos.webp', '00000000-0000-4000-8000-000100000010', true, 9),
-  ('doce', 'Brigadeiro', 'brigadeiro', 'O clássico que não pode faltar.', '/images/cat-brigadeiro.webp', '00000000-0000-4000-8000-000100000011', true, 10),
-  ('doce', 'Bolos de Festa', 'bolos-de-festa', 'Sob encomenda, do seu jeito.', '/images/cat-bolos-festa.webp', '00000000-0000-4000-8000-000100000012', true, 11),
-  ('doce', 'Bolos Caseiros', 'bolos-caseiros', 'Consulte os sabores do dia.', '/images/cat-bolos-caseiros.webp', '00000000-0000-4000-8000-000100000013', true, 12),
-  ('doce', 'Tortas', 'tortas', 'Consulte os sabores disponíveis.', '/images/cat-tortas.webp', '00000000-0000-4000-8000-000100000014', true, 13),
-  ('doce', 'Torta Cook', 'torta-cook', 'Massa de cookie com recheio cremoso.', '/images/cat-torta-cook.webp', '00000000-0000-4000-8000-000100000015', true, 14)
+  ('salgado', 'Mini Pastel Aperitivo', 'pasteis-fritos', 'Mini pastéis de queijo ou carne, congelados ou fritos.', '/images/cat-pastel-frito.webp', '00000000-0000-4000-8000-000100000008', true, 7),
+  ('salgado', 'Pastel Frito', 'pastel-frito-de-feira', 'Pastel grande de feira, crocante e bem recheado.', '/images/cat-pastel-frito.webp', '00000000-0000-4000-8000-000100000009', true, 8),
+  ('salgado', 'Salgados Especiais', 'salgados-especiais', 'Bolinho de bacalhau, bolinho de feijoada e empanado de camarão.', '/images/cat-especiais.webp', '00000000-0000-4000-8000-000100000010', true, 9),
+  ('doce', 'Docinhos', 'docinhos', 'Brigadeiro, cajuzinho, beijinho e moranguinho.', '/images/cat-docinhos.webp', '00000000-0000-4000-8000-000100000011', true, 10),
+  ('doce', 'Brigadeiro', 'brigadeiro', 'O clássico que não pode faltar.', '/images/cat-brigadeiro.webp', '00000000-0000-4000-8000-000100000012', true, 11),
+  ('doce', 'Bolos de Festa', 'bolos-de-festa', 'Sob encomenda, do seu jeito.', '/images/cat-bolos-festa.webp', '00000000-0000-4000-8000-000100000013', true, 12),
+  ('doce', 'Bolos Caseiros', 'bolos-caseiros', 'Consulte os sabores do dia.', '/images/cat-bolos-caseiros.webp', '00000000-0000-4000-8000-000100000014', true, 13),
+  ('doce', 'Tortas', 'tortas', 'Consulte os sabores disponíveis.', '/images/cat-tortas.webp', '00000000-0000-4000-8000-000100000015', true, 14),
+  ('doce', 'Torta Cook', 'torta-cook', 'Massa de cookie com recheio cremoso.', '/images/cat-torta-cook.webp', '00000000-0000-4000-8000-000100000016', true, 15)
 on conflict do nothing;
 
 insert into public.products (id, category_id, kind, name, slug, description, images, price, max_flavors, available, visible, featured, sort_order) values
@@ -42,11 +43,11 @@ insert into public.products (id, category_id, kind, name, slug, description, ima
   ('00000000-0000-4000-8000-000200000005', '00000000-0000-4000-8000-000100000005', 'comum', 'Croissant', 'croissant', 'Bandeja com 20 mini croissants recheados.', array['/images/cat-croissants.webp']::text[], 21, 1, true, true, false, 4),
   ('00000000-0000-4000-8000-000200000006', '00000000-0000-4000-8000-000100000006', 'comum', 'Pastel de Forno', 'pastel-de-forno', 'Bandeja com 20 pastéis de forno.', array['/images/cat-pastel-forno.webp']::text[], 21, 1, true, true, false, 5),
   ('00000000-0000-4000-8000-000200000007', '00000000-0000-4000-8000-000100000007', 'frito', 'Salgados Fritos 18g', 'salgados-fritos-18g', 'Salgadinhos de festa de 18g. Leve congelados para fritar em casa ou já fritinhos.', array['/images/cat-fritos.webp']::text[], 21, 1, true, true, true, 6),
-  ('00000000-0000-4000-8000-000200000008', '00000000-0000-4000-8000-000100000008', 'frito', 'Pastel Frito', 'pastel-frito', 'Pacote com 20 pastéis. Congelados para fritar em casa ou já fritos.', array['/images/cat-pastel-frito.webp']::text[], 14, 1, true, true, false, 7),
-  ('00000000-0000-4000-8000-000200000009', '00000000-0000-4000-8000-000100000009', 'frito', 'Salgados Especiais', 'salgados-especiais', 'Pacote de um sabor. A quantidade de unidades varia conforme o salgado.', array['/images/cat-especiais.webp']::text[], 40, 1, true, true, false, 8),
-  ('00000000-0000-4000-8000-000200000010', '00000000-0000-4000-8000-000100000010', 'comum', 'Bandeja de Docinhos', 'bandeja-de-docinhos', 'Bandeja com 20 docinhos de festa.', array['/images/cat-docinhos.webp']::text[], 21, 1, true, true, true, 9),
-  ('00000000-0000-4000-8000-000200000011', '00000000-0000-4000-8000-000100000011', 'comum', 'Brigadeiro', 'brigadeiro', 'Bandeja com 20 brigadeiros tradicionais.', array['/images/cat-brigadeiro.webp']::text[], 21, 1, true, true, false, 10),
-  ('00000000-0000-4000-8000-000200000012', '00000000-0000-4000-8000-000100000012', 'bolo_festa', 'Bolo de Festa', 'bolo-de-festa', 'Bolo personalizado para aniversários, chás e comemorações. Conte pra gente o tema e, se tiver, envie uma foto de inspiração.', array['/images/cat-bolos-festa.webp']::text[], null, 1, true, true, false, 11)
+  ('00000000-0000-4000-8000-000200000008', '00000000-0000-4000-8000-000100000008', 'frito', 'Mini Pastel Aperitivo', 'pastel-frito', 'Pacote com 20 pastéis. Congelados para fritar em casa ou já fritos.', array['/images/cat-pastel-frito.webp']::text[], 14, 1, true, true, false, 7),
+  ('00000000-0000-4000-8000-000200000009', '00000000-0000-4000-8000-000100000010', 'frito', 'Salgados Especiais', 'salgados-especiais', 'Pacote de um sabor. A quantidade de unidades varia conforme o salgado.', array['/images/cat-especiais.webp']::text[], 40, 1, true, true, false, 8),
+  ('00000000-0000-4000-8000-000200000010', '00000000-0000-4000-8000-000100000011', 'comum', 'Bandeja de Docinhos', 'bandeja-de-docinhos', 'Bandeja com 20 docinhos de festa.', array['/images/cat-docinhos.webp']::text[], 21, 1, true, true, true, 9),
+  ('00000000-0000-4000-8000-000200000011', '00000000-0000-4000-8000-000100000012', 'comum', 'Brigadeiro', 'brigadeiro', 'Bandeja com 20 brigadeiros tradicionais.', array['/images/cat-brigadeiro.webp']::text[], 21, 1, true, true, false, 10),
+  ('00000000-0000-4000-8000-000200000012', '00000000-0000-4000-8000-000100000013', 'bolo_festa', 'Bolo de Festa', 'bolo-de-festa', 'Bolo personalizado para aniversários, chás e comemorações. Conte pra gente o tema e, se tiver, envie uma foto de inspiração.', array['/images/cat-bolos-festa.webp']::text[], null, 1, true, true, false, 11)
 on conflict do nothing;
 
 insert into public.product_portions (id, product_id, label, units, price, price_frozen, price_fried, max_flavors, sort_order) values

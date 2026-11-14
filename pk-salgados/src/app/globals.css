@@ -68,26 +68,28 @@ body {
 .snap-row::-webkit-scrollbar { display: none; }
 .snap-row > * { scroll-snap-align: start; }
 
-/* Campos de formulário */
-.field {
-  width: 100%;
-  border-radius: 14px;
-  border: 1.5px solid rgb(11 35 65 / 0.14);
-  background: #fff;
-  padding: 0.7rem 0.9rem;
-  font-size: 1rem; /* 16px evita zoom no iPhone */
-  color: var(--color-ink);
-  transition: border-color 0.15s, box-shadow 0.15s;
+/* Campos de formulário (na camada "components": larguras como w-24 continuam valendo) */
+@layer components {
+  .field {
+    width: 100%;
+    border-radius: 14px;
+    border: 1.5px solid rgb(11 35 65 / 0.14);
+    background: #fff;
+    padding: 0.7rem 0.9rem;
+    font-size: 1rem; /* 16px evita zoom no iPhone */
+    color: var(--color-ink);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 4px rgb(246 166 35 / 0.2);
+  }
+  .field[aria-invalid="true"] { border-color: #dc2626; }
+  .label { display: block; font-size: 0.875rem; font-weight: 600; color: var(--color-navy); margin-bottom: 0.35rem; }
+  .hint { font-size: 0.78rem; color: var(--color-muted); margin-top: 0.25rem; }
+  .error-text { font-size: 0.8rem; color: #b91c1c; margin-top: 0.25rem; }
 }
-.field:focus {
-  outline: none;
-  border-color: var(--color-gold);
-  box-shadow: 0 0 0 4px rgb(246 166 35 / 0.2);
-}
-.field[aria-invalid="true"] { border-color: #dc2626; }
-.label { display: block; font-size: 0.875rem; font-weight: 600; color: var(--color-navy); margin-bottom: 0.35rem; }
-.hint { font-size: 0.78rem; color: var(--color-muted); margin-top: 0.25rem; }
-.error-text { font-size: 0.8rem; color: #b91c1c; margin-top: 0.25rem; }
 
 /* Impressão de pedido no painel */
 @media print {

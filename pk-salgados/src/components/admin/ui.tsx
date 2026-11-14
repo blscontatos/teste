@@ -171,7 +171,7 @@ export function MoneyInput({
   className = "field",
   ...rest
 }: { value: number | null; onChange: (v: number | null) => void } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
-  const show = (v: number | null) => (v == null ? "" : String(v).replace(".", ","));
+  const show = (v: number | null) => (v == null ? "" : Number.isInteger(v) ? String(v) : v.toFixed(2).replace(".", ","));
   const [text, setText] = useState(show(value));
   // Se o valor mudar por fora (ex.: carregou do banco), atualiza o texto.
   useEffect(() => {

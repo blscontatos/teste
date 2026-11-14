@@ -23,6 +23,11 @@ function CategoryCard({ category, index }: { category: Category; index: number }
   const prods = data.products.filter((p) => p.category_id === category.id);
   const from = priceFrom(prods);
   const isCake = prods.some((p) => p.kind === "bolo_festa");
+  // Foto do cartão: a que as donas enviaram para a categoria; se ela ainda for a foto de
+  // exemplo que veio com o site, usa a foto principal do primeiro produto.
+  const isExampleImage = !category.image_url || category.image_url.startsWith("/images/");
+  const productImage = prods.find((p) => p.images[0])?.images[0];
+  const cardImage = isExampleImage && productImage ? productImage : category.image_url;
   const noProducts = prods.length === 0;
 
   return (
@@ -38,9 +43,9 @@ function CategoryCard({ category, index }: { category: Category; index: number }
       aria-label={`Ver ${category.name}`}
     >
       <div className="relative aspect-[4/3.4] w-full overflow-hidden bg-cream">
-        {category.image_url && (
+        {cardImage && (
           <Image
-            src={category.image_url}
+            src={cardImage}
             alt={category.name}
             fill
             sizes="(max-width: 640px) 72vw, (max-width: 1024px) 40vw, 23vw"

@@ -274,6 +274,85 @@ await admin.waitForTimeout(1500); // espera o site ser atualizado
 sl = await cakeSlots();
 ok(sl.length === 0, "Removendo a data especial, o domingo volta a fechar");
 
+// ---------------------------------------------------------------- Correções e novidades (nov/2026)
+// 1) Produto oculto: a categoria some do site quando todos os produtos dela estão ocultos
+await admin.goto(`${BASE}/admin/produtos/00000000-0000-4000-8000-000200000011`); // Brigadeiro
+await admin.getByRole("switch", { name: "Mostrar no site" }).click();
+await admin.getByRole("button", { name: "Salvar produto" }).click();
+await admin.getByText("Produto salvo!").waitFor();
+await admin.waitForTimeout(800);
+await site.goto(BASE, { waitUntil: "networkidle" });
+ok((await site.getByRole("button", { name: "Ver Brigadeiro" }).count()) === 0, "Produto oculto: a categoria some do site");
+await admin.getByRole("switch", { name: "Mostrar no site" }).click();
+await admin.getByRole("button", { name: "Salvar produto" }).click();
+await admin.getByText("Produto salvo!").last().waitFor();
+await admin.waitForTimeout(800);
+await site.goto(BASE, { waitUntil: "networkidle" });
+ok((await site.getByRole("button", { name: "Ver Brigadeiro" }).count()) === 1, "Mostrando de novo, a categoria volta");
+
+// 2) Foto trocada no produto aparece no cartão da página principal
+await admin.goto(`${BASE}/admin/produtos/00000000-0000-4000-8000-000200000004`); // Folhados
+await admin.locator('input[type="file"]').nth(1).setInputFiles(photo);
+await admin.getByRole("button", { name: "Usar sem recortar" }).click();
+await admin.getByText("Imagem enviada").waitFor();
+await admin.getByRole("button", { name: "★ Usar como foto principal" }).click();
+await admin.getByRole("button", { name: "Salvar produto" }).click();
+await admin.getByText("Produto salvo!").last().waitFor();
+await admin.waitForTimeout(800);
+await site.goto(BASE, { waitUntil: "networkidle" });
+const cardSrc = await site.getByRole("button", { name: "Ver Folhados" }).locator("img").getAttribute("src");
+ok(decodeURIComponent(cardSrc ?? "").includes("/storage/v1/object/public/site-images/produtos/"), "Foto nova do produto aparece no cartão");
+
+// 3) Galeria "Bolos que já fizemos"
+await admin.goto(`${BASE}/admin/produtos/00000000-0000-4000-8000-000200000012`); // Bolo de Festa
+await admin.locator('input[type="file"]').nth(1).setInputFiles(photo);
+await admin.getByRole("button", { name: "Usar sem recortar" }).click();
+await admin.getByText("Imagem enviada").waitFor();
+await admin.getByRole("button", { name: "Salvar produto" }).click();
+await admin.getByText("Produto salvo!").last().waitFor();
+await admin.waitForTimeout(800);
+await site.goto(BASE, { waitUntil: "networkidle" });
+await site.locator("#doces").scrollIntoViewIfNeeded();
+await site.getByRole("button", { name: "Ver Bolos de Festa" }).click();
+ok(await site.getByText("Bolos que já fizemos").isVisible(), "Galeria de bolos no formulário");
+await site.getByRole("button", { name: "Ver bolo 1 em tamanho grande" }).click();
+await site.getByRole("button", { name: "Quero um parecido" }).click();
+ok((await site.getByLabel("Tema / observações").inputValue()).includes("nº 1"), "“Quero um parecido” preenche o tema");
+
+// 4) Só WhatsApp + comer na loja
+await admin.goto(`${BASE}/admin/configuracoes`);
+await admin.getByRole("switch", { name: "Pedidos pelo site e pelo WhatsApp" }).click();
+await admin.getByText("Configurações salvas!").last().waitFor();
+await admin.waitForTimeout(800);
+const c2 = await browser.newContext({ ...devices["iPhone 13"] });
+const p2 = await c2.newPage();
+await p2.goto(BASE, { waitUntil: "networkidle" });
+await p2.locator("#promocoes").scrollIntoViewIfNeeded();
+await p2.getByRole("button", { name: "Pedir agora" }).first().click();
+await p2.getByRole("button", { name: /Abrir sacola/ }).click();
+await p2.getByRole("button", { name: "Continuar" }).click();
+ok((await p2.getByRole("button", { name: "Enviar pedido pelo site" }).count()) === 0 && (await p2.getByRole("button", { name: "Enviar pelo WhatsApp" }).isVisible()), "Só WhatsApp: botão do site some");
+await p2.getByRole("button", { name: "Comer na loja" }).click();
+ok((await p2.getByLabel("Data da retirada *").count()) === 0 && (await p2.getByLabel("Horário *").count()) === 0, "Comer na loja: sem dia e horário");
+const openNow = !(await p2.getByText("A loja está fechada agora").isVisible());
+await p2.getByLabel("Nome completo *").fill("Cliente Balcão");
+await p2.getByLabel("Telefone / WhatsApp *").fill("21977776666");
+if (openNow) {
+  const [pop] = await Promise.all([p2.waitForEvent("popup"), p2.getByRole("button", { name: "Enviar pelo WhatsApp" }).click()]);
+  await p2.getByText("Recebemos seu pedido").waitFor({ timeout: 15000 });
+  await pop.waitForURL(/whatsapp/, { timeout: 15000 }).catch(() => {});
+  const msg = decodeURIComponent(pop.url().replace(/\+/g, " "));
+  await pop.close();
+  ok(msg.includes("Comer na loja") && msg.includes("Para agora"), "Pedido para comer na loja enviado (loja aberta)");
+} else {
+  ok(true, "Comer na loja: loja fechada agora, aviso exibido (teste de envio pulado)");
+}
+await c2.close();
+await admin.getByRole("switch", { name: "Pedidos só pelo WhatsApp" }).click();
+await admin.getByText("Configurações salvas!").last().waitFor();
+const rejSite = await fetch(`${sbUrl}/rest/v1/rpc/create_order`, { method: "POST", headers: { apikey: ANON, "Content-Type": "application/json" }, body: "{}" });
+ok(rejSite.status >= 400, "Banco valida o pedido (chamada vazia recusada)");
+
 // ---------------------------------------------------------------- Fotos: apagar
 
 // 1) Foto enviada e salva num produto (em uso)

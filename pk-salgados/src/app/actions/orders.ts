@@ -34,9 +34,9 @@ const orderSchema = z.object({
   customer_name: z.string().trim().min(3, "Informe seu nome completo.").max(120),
   phone,
   address: z.string().trim().max(300).default(""),
-  fulfillment: z.enum(["retirada", "entrega"]),
+  fulfillment: z.enum(["retirada", "entrega", "consumo_local"]),
   payment: z.enum(["pix", "dinheiro", "cartao"]),
-  desired_at: z.string().min(10, "Informe a data e o horário desejados."),
+  desired_at: z.string().default(""), // vazio quando é para comer na loja (agora)
   notes: z.string().trim().max(1000).default(""),
   website: z.string().max(0, "Envio bloqueado.").optional(), // campo-isca anti-robô (fica escondido)
   items: z
@@ -62,6 +62,8 @@ export async function submitOrder(
 ): Promise<Result<{ number: number; total: number; subtotal: number; delivery_fee: number }>> {
   const parsed = orderSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  if (parsed.data.fulfillment !== "consumo_local" && parsed.data.desired_at.length < 10)
+    return { ok: false, error: "Informe a data e o horário desejados." };
   if (parsed.data.fulfillment === "entrega" && parsed.data.address.length < 8)
     return { ok: false, error: "Informe o endereço completo para entrega." };
   if (!hasSupabase) return { ok: false, error: "O site ainda está em modo de demonstração (banco de dados não configurado)." };

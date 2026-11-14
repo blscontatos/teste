@@ -56,6 +56,17 @@ export function SettingsEditor() {
         <input id="cfg-msg" className="field" value={s.store_closed_message} onChange={(e) => set("store_closed_message", e.target.value)} />
       </Card>
 
+      <Card className="mb-5">
+        <Switch
+          label={s.order_via_site ? "Pedidos pelo site e pelo WhatsApp" : "Pedidos só pelo WhatsApp"}
+          hint={s.order_via_site
+            ? "Desligue para tirar o botão “Enviar pedido pelo site”. O cliente continua montando a sacola e envia pelo WhatsApp (o pedido também aparece aqui no painel)."
+            : "O botão “Enviar pedido pelo site” está escondido. Ligue para mostrar de novo."}
+          checked={s.order_via_site}
+          onChange={(v) => save({ order_via_site: v })}
+        />
+      </Card>
+
       <div className="grid gap-5 lg:grid-cols-2">
         <Card className="space-y-4">
           <h2 className="font-semibold text-navy">Contato</h2>
@@ -94,6 +105,7 @@ export function SettingsEditor() {
           <Card className="space-y-4">
             <h2 className="font-semibold text-navy">Entrega e prazos</h2>
             <Switch label="Fazemos entregas" checked={s.delivery_enabled} onChange={(v) => set("delivery_enabled", v)} />
+            <Switch label="Aceitar pedido para comer na loja" hint="O cliente pede para agora, sem marcar dia e horário (só com a loja aberta)." checked={s.dine_in_enabled} onChange={(v) => set("dine_in_enabled", v)} />
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label" htmlFor="cfg-taxa">Taxa de entrega (R$)</label>

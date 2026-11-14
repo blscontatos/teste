@@ -259,22 +259,40 @@ export function ProductEditor({ id }: { id?: string }) {
 
         <div className="space-y-5">
           <Card className="space-y-4">
-            <h2 className="font-semibold text-navy">Fotos</h2>
-            {[...p.images, ""].slice(0, 4).map((img, i) => (
-              <ImageUpload
-                key={`${i}-${img}`}
-                folder="produtos"
-                aspect={16 / 9}
-                label={i === 0 ? "Foto principal" : `Foto ${i + 1}`}
-                value={img}
-                onChange={(url) => {
-                  const list = [...p.images];
-                  if (url) list[i] = url;
-                  else list.splice(i, 1);
-                  set("images", list.filter(Boolean));
-                }}
-              />
+            <div>
+              <h2 className="font-semibold text-navy">Fotos</h2>
+              <p className="text-xs text-muted">
+                {isCake
+                  ? "A foto principal aparece no cartão e no topo do formulário. As outras aparecem como “Bolos que já fizemos”."
+                  : "A foto principal aparece no cartão do site e no topo do produto."}
+              </p>
+            </div>
+            {[...p.images, ""].slice(0, isCake ? 16 : 6).map((img, i) => (
+              <div key={`${i}-${img}`} className={`rounded-2xl p-2 ${i === 0 && img ? "bg-gold-100 ring-2 ring-gold" : ""}`}>
+                <ImageUpload
+                  folder="produtos"
+                  aspect={isCake ? 1 : 16 / 9}
+                  label={i === 0 ? "★ Foto principal" : img ? `Foto ${i + 1}` : isCake ? "Adicionar foto de bolo já feito" : "Adicionar foto"}
+                  value={img}
+                  onChange={(url) => {
+                    const list = [...p.images];
+                    if (url) list[i] = url;
+                    else list.splice(i, 1);
+                    set("images", list.filter(Boolean));
+                  }}
+                />
+                {i > 0 && img && (
+                  <Btn
+                    variant="ghost"
+                    className="mt-1"
+                    onClick={() => set("images", [img, ...p.images.filter((_, k) => k !== i)])}
+                  >
+                    ★ Usar como foto principal
+                  </Btn>
+                )}
+              </div>
             ))}
+            <p className="hint">Depois de mudar as fotos, clique em “Salvar produto”.</p>
           </Card>
           <div className="space-y-2">
             <Switch label="Mostrar no site" hint="Desligado = oculto" checked={p.visible} onChange={(v) => set("visible", v)} />

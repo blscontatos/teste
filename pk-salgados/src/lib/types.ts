@@ -4,7 +4,7 @@ export type CategorySection = "salgado" | "doce";
 export type ProductKind = "comum" | "frito" | "bolo_festa";
 export type OrderStatus = "novo" | "em_preparo" | "pronto" | "entregue" | "cancelado";
 export type OrderChannel = "site" | "whatsapp";
-export type Fulfillment = "retirada" | "entrega";
+export type Fulfillment = "retirada" | "entrega" | "consumo_local";
 export type PaymentMethod = "pix" | "dinheiro" | "cartao";
 export type FryOption = "congelado" | "frito";
 export type CakePhotoMode = "whatsapp" | "link";
@@ -29,6 +29,10 @@ export interface Settings {
   store_closed_message: string;
   /** 'whatsapp' = cliente envia a foto do bolo no WhatsApp; 'link' = foto guardada no site e enviada como link */
   cake_photo_mode: CakePhotoMode;
+  /** false = sem o botão "Enviar pedido pelo site" (só WhatsApp) */
+  order_via_site: boolean;
+  /** aceita pedido para comer na loja (sem data/horário) */
+  dine_in_enabled: boolean;
   /** Semana geral: chave = dia da semana (0 = domingo … 6 = sábado); null = fechado */
   weekly_hours: WeeklyHours;
   /** Datas especiais (abrir num domingo, feriado, horário diferente) */

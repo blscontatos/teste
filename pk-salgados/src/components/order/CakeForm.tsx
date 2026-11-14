@@ -4,7 +4,7 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, CheckCircle2, Download, ImagePlus, Loader2, Share2, X } from "lucide-react";
+import { Check, CheckCircle2, ChevronLeft, ChevronRight, Download, ImagePlus, Loader2, Share2, X } from "lucide-react";
 import { useShop } from "./ShopProvider";
 import { PillButton } from "@/components/ui/PillButton";
 import { submitCakeOrder } from "@/app/actions/orders";
@@ -50,6 +50,9 @@ export function CakeForm({ product }: { product: Product }) {
   const [error, setError] = useState("");
   const [done, setDone] = useState<{ number: number; wa: string; sendPhoto: boolean } | null>(null);
   const [photoSent, setPhotoSent] = useState(false);
+  // Galeria "Bolos que já fizemos": as fotos do produto depois da principal.
+  const gallery = product.images.slice(1).filter(Boolean);
+  const [zoom, setZoom] = useState<number | null>(null);
   // "whatsapp": a foto fica só no celular do cliente e ele envia na conversa. "link": vai para o site.
   const photoByWhatsApp = s.cake_photo_mode !== "link";
 
@@ -255,6 +258,28 @@ export function CakeForm({ product }: { product: Product }) {
           </p>
         </div>
 
+        {gallery.length > 0 && (
+          <div>
+            <p className="label">Bolos que já fizemos</p>
+            <ul className="snap-row -mx-5 flex gap-2.5 overflow-x-auto px-5 pb-1 sm:-mx-6 sm:px-6">
+              {gallery.map((img, i) => (
+                <li key={img} className="shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setZoom(i)}
+                    className="group relative block h-28 w-28 overflow-hidden rounded-2xl bg-cream shadow-card sm:h-32 sm:w-32"
+                    aria-label={`Ver bolo ${i + 1} em tamanho grande`}
+                  >
+                    <Image src={img} alt={`Bolo feito pela PK ${i + 1}`} fill sizes="128px" className="object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <span className="absolute left-1.5 top-1.5 grid h-6 min-w-6 place-items-center rounded-full bg-navy/80 px-1.5 text-xs font-bold text-white">{i + 1}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className="hint">Toque para ampliar. Gostou de algum? Toque em “Quero um parecido”.</p>
+          </div>
+        )}
+
         <input type="text" name="website" value={form.website} onChange={(e) => set("website", e.target.value)} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden />
 
         <div>
@@ -335,6 +360,40 @@ export function CakeForm({ product }: { product: Product }) {
         </PillButton>
         <p className="text-center text-[0.7rem] text-muted">{photoByWhatsApp && hasInspiration ? "A foto não é enviada ao site: você manda direto no WhatsApp da PK no próximo passo." : "Seus dados e a foto são usados só para esta encomenda."}</p>
       </form>
+      {zoom !== null && gallery[zoom] && (
+        <div className="fixed inset-0 z-[90] flex flex-col bg-black/90 p-4" role="dialog" aria-modal="true" aria-label="Bolo em tamanho grande">
+          <div className="flex justify-end">
+            <button type="button" onClick={() => setZoom(null)} className="grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white" aria-label="Fechar">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="relative flex-1">
+            <Image src={gallery[zoom]} alt={`Bolo feito pela PK ${zoom + 1}`} fill sizes="100vw" className="object-contain" />
+            {gallery.length > 1 && (
+              <>
+                <button type="button" onClick={() => setZoom((zoom - 1 + gallery.length) % gallery.length)} className="absolute left-0 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white" aria-label="Anterior">
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <button type="button" onClick={() => setZoom((zoom + 1) % gallery.length)} className="absolute right-0 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white" aria-label="Próximo">
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </>
+            )}
+          </div>
+          <div className="flex justify-center pt-4">
+            <PillButton
+              variant="gold"
+              onClick={() => {
+                const note = `Quero um bolo parecido com o nº ${zoom + 1} da galeria "Bolos que já fizemos".`;
+                setForm((f) => ({ ...f, theme: f.theme.includes(note) ? f.theme : [f.theme, note].filter(Boolean).join("\n") }));
+                setZoom(null);
+              }}
+            >
+              Quero um parecido
+            </PillButton>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

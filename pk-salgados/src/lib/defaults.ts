@@ -39,6 +39,8 @@ export const defaultSettings: Settings = {
   store_closed: false,
   store_closed_message: "Hoje não estamos aceitando pedidos. Voltamos em breve!",
   cake_photo_mode: "whatsapp",
+  order_via_site: true,
+  dine_in_enabled: true,
   weekly_hours: {
     "0": null,
     "1": { open: "09:00", close: "18:00" },

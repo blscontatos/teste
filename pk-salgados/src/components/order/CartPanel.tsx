@@ -15,7 +15,7 @@ import {
 import { orderMessage, waLink } from "@/lib/whatsapp";
 import type { Fulfillment, PaymentMethod } from "@/lib/types";
 import { DateTimeFields } from "./DateTimeFields";
-import { timeSlots } from "@/lib/hours";
+import { isOpenNow, timeSlots } from "@/lib/hours";
 
 type Step = "sacola" | "dados" | "pronto";
 
@@ -57,7 +57,10 @@ export function CartPanel() {
     name: form.name.trim().length < 3 ? "Informe seu nome completo." : "",
     phone: !isValidPhone(form.phone) ? "Informe um telefone válido com DDD." : "",
     address: form.fulfillment === "entrega" && form.address.trim().length < 8 ? "Informe o endereço completo." : "",
-    desired_at: !form.date || !form.time || !timeSlots(s, form.date, s.min_order_notice_hours).includes(form.time) ? "Escolha a data e o horário." : "",
+    desired_at:
+      form.fulfillment === "consumo_local"
+        ? !isOpenNow(s) ? "A loja está fechada agora. Escolha retirada ou entrega." : ""
+        : !form.date || !form.time || !timeSlots(s, form.date, s.min_order_notice_hours).includes(form.time) ? "Escolha a data e o horário." : "",
   };
   const valid = Object.values(errors).every((e) => !e);
 
@@ -75,7 +78,7 @@ export function CartPanel() {
       address: form.address,
       fulfillment: form.fulfillment,
       payment: form.payment,
-      desired_at: localInputToIso(`${form.date}T${form.time}`),
+      desired_at: (form.fulfillment === "consumo_local" ? new Date().toISOString() : localInputToIso(`${form.date}T${form.time}`)),
       notes: form.notes,
       website: form.website,
       items: items.map((i) => ({
@@ -105,7 +108,7 @@ export function CartPanel() {
           address: form.address,
           fulfillment: form.fulfillment,
           payment: form.payment,
-          desired_at: localInputToIso(`${form.date}T${form.time}`),
+          desired_at: (form.fulfillment === "consumo_local" ? new Date().toISOString() : localInputToIso(`${form.date}T${form.time}`)),
           notes: form.notes,
           items,
           subtotal: res.subtotal,
@@ -143,10 +146,13 @@ export function CartPanel() {
           <div className="flex justify-between font-semibold text-navy"><span>Total</span><span className="font-title text-xl">{money(total)}</span></div>
         </div>
         {error && <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-        <div className="grid gap-2 sm:grid-cols-2">
-          <PillButton onClick={() => send("site")} disabled={!!sending} variant="outline">
-            {sending === "site" ? "Enviando…" : "Enviar pedido pelo site"}
-          </PillButton>
+        <div className={`grid gap-2 ${s.order_via_site ? "sm:grid-cols-2" : ""}`}>
+          {/* As donas podem desligar o pedido pelo site no painel (fica só o WhatsApp) */}
+          {s.order_via_site && (
+            <PillButton onClick={() => send("site")} disabled={!!sending} variant="outline">
+              {sending === "site" ? "Enviando…" : "Enviar pedido pelo site"}
+            </PillButton>
+          )}
           <PillButton onClick={() => send("whatsapp")} disabled={!!sending || !s.whatsapp} whatsapp>
             {sending === "whatsapp" ? "Enviando…" : "Enviar pelo WhatsApp"}
           </PillButton>
@@ -233,15 +239,18 @@ export function CartPanel() {
           </div>
           <fieldset>
             <legend className="label">Como prefere receber? *</legend>
-            <div className="grid grid-cols-2 gap-2">
-              {(["retirada", "entrega"] as const).map((f) => (
-                <button key={f} type="button" disabled={f === "entrega" && !s.delivery_enabled} onClick={() => set("fulfillment", f)} aria-pressed={form.fulfillment === f} className={`rounded-2xl border-2 px-3 py-2.5 text-sm font-semibold transition disabled:opacity-40 ${form.fulfillment === f ? "border-navy bg-navy text-white" : "border-navy/15 bg-white text-navy"}`}>
-                  {f === "retirada" ? "Retirar na loja" : "Entrega"}
+            <div className={`grid gap-2 ${s.dine_in_enabled ? "grid-cols-3" : "grid-cols-2"}`}>
+              {(["retirada", "entrega", ...(s.dine_in_enabled ? (["consumo_local"] as const) : [])] as const).map((f) => (
+                <button key={f} type="button" disabled={f === "entrega" && !s.delivery_enabled} onClick={() => set("fulfillment", f)} aria-pressed={form.fulfillment === f} className={`rounded-2xl border-2 px-2 py-2.5 text-sm font-semibold leading-tight transition disabled:opacity-40 ${form.fulfillment === f ? "border-navy bg-navy text-white" : "border-navy/15 bg-white text-navy"}`}>
+                  {f === "retirada" ? "Retirar na loja" : f === "entrega" ? "Entrega" : "Comer na loja"}
                 </button>
               ))}
             </div>
             {form.fulfillment === "entrega" && s.delivery_area && <p className="hint">{s.delivery_area}</p>}
             {form.fulfillment === "retirada" && s.address && <p className="hint">Retirada em: {s.address}</p>}
+            {form.fulfillment === "consumo_local" && (
+              <p className="hint">Pedido para agora, para comer na loja: não precisa marcar dia nem horário.{s.address ? ` ${s.address}` : ""}</p>
+            )}
           </fieldset>
           {form.fulfillment === "entrega" && (
             <div>
@@ -250,6 +259,13 @@ export function CartPanel() {
               {tried && errors.address && <p className="error-text">{errors.address}</p>}
             </div>
           )}
+          {form.fulfillment === "consumo_local" ? (
+            !isOpenNow(s) && (
+              <p role="alert" className="rounded-2xl bg-red-50 px-3 py-2 text-sm text-red-700">
+                A loja está fechada agora. Para comer na loja, faça o pedido no horário de funcionamento.
+              </p>
+            )
+          ) : (
           <div>
             <DateTimeFields
               settings={s}
@@ -263,6 +279,7 @@ export function CartPanel() {
             />
             <p className="hint">Pedidos com pelo menos {s.min_order_notice_hours}h de antecedência.</p>
           </div>
+          )}
           <fieldset>
             <legend className="label">Forma de pagamento *</legend>
             <div className="grid grid-cols-3 gap-2">

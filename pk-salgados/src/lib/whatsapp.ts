@@ -42,7 +42,7 @@ export function orderMessage(o: {
     `Telefone: ${o.phone}`,
     `${fulfillmentLabels[o.fulfillment]}${o.fulfillment === "entrega" ? `: ${o.address}` : ""}`,
     `Pagamento: ${paymentLabels[o.payment]}`,
-    `Data/horário: ${formatDateTime(o.desired_at)}`,
+    o.fulfillment === "consumo_local" ? `Para agora (comer na loja)` : `Data/horário: ${formatDateTime(o.desired_at)}`,
     ...(o.notes ? [`Observações: ${o.notes}`] : []),
   ];
   return lines.join("\n");

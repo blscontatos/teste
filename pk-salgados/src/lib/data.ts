@@ -40,7 +40,7 @@ function demoData(): SiteData {
 export const getSiteData = cache(async (opts: { preview?: boolean } = {}): Promise<SiteData> => {
   if (!hasSupabase) return demoData();
   const sb = createPublicClient();
-  const [content, settings, categories, products, promotions, testimonials] = await Promise.all([
+  const [content, settings, categories, products, promotions, testimonials, allHidden] = await Promise.all([
     sb.from("site_content").select("key, data, draft"),
     sb.from("settings").select("*").eq("id", 1).maybeSingle(),
     sb.from("categories").select("*").eq("visible", true).order("sort_order"),
@@ -51,6 +51,8 @@ export const getSiteData = cache(async (opts: { preview?: boolean } = {}): Promi
       .order("sort_order"),
     sb.from("promotions").select("*, items:promotion_items(*)").order("sort_order"),
     sb.from("testimonials").select("*").eq("visible", true).order("sort_order"),
+    // categorias que têm produtos, mas todos ocultos no painel → não aparecem no site
+    sb.rpc("categories_all_hidden"),
   ]);
   const err = content.error || settings.error || categories.error || products.error || promotions.error || testimonials.error;
   if (err) {
@@ -61,7 +63,9 @@ export const getSiteData = cache(async (opts: { preview?: boolean } = {}): Promi
   return {
     content: mergeContent(content.data ?? [], opts.preview),
     settings: { ...defaultSettings, ...(settings.data ?? {}), delivery_fee: Number(settings.data?.delivery_fee ?? 0) },
-    categories: categories.data ?? [],
+    categories: (categories.data ?? []).filter(
+      (c) => !((allHidden.data as string[] | null) ?? []).includes(c.id),
+    ),
     products: (products.data ?? []).map(normalizeProduct),
     promotions: (promotions.data ?? []).map(normalizePromotion),
     testimonials: testimonials.data ?? [],

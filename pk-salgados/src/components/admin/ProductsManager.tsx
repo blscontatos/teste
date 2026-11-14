@@ -207,6 +207,7 @@ export function ProductsManager() {
                 <input id="cat-desc" className="field" value={editCat.description ?? ""} onChange={(e) => setEditCat({ ...editCat, description: e.target.value })} />
               </div>
               <ImageUpload label="Foto do cartão" folder="categorias" aspect={4 / 3.4} value={editCat.image_url ?? ""} onChange={(url) => setEditCat({ ...editCat, image_url: url })} />
+              <p className="hint -mt-2">Se você não enviar uma foto aqui, o cartão usa a foto principal do produto desta categoria.</p>
               <Switch label="Mostrar no site" checked={editCat.visible ?? true} onChange={(v) => setEditCat({ ...editCat, visible: v })} />
               <div className="flex justify-end gap-2">
                 <Btn variant="ghost" onClick={() => setEditCat(null)}>Cancelar</Btn>

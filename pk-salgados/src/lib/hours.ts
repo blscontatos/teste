@@ -109,3 +109,10 @@ export function describeSpecial(d: SpecialDay) {
 
 /** Hoje em Brasília, "AAAA-MM-DD". */
 export const todayInBrazil = () => nowInBrazil().date;
+
+/** A loja está aberta agora (horário de Brasília)? Usado no pedido para comer na loja. */
+export function isOpenNow(s: HoursSettings) {
+  const now = nowInBrazil();
+  const h = hoursForDate(s, now.date);
+  return !!h && now.minutes >= toMin(h.open) && now.minutes <= toMin(h.close);
+}

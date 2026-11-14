@@ -49,7 +49,7 @@ export const statusLabels = {
   cancelado: "Cancelado",
 } as const;
 export const paymentLabels = { pix: "Pix", dinheiro: "Dinheiro", cartao: "Cartão na entrega" } as const;
-export const fulfillmentLabels = { retirada: "Retirada na loja", entrega: "Entrega" } as const;
+export const fulfillmentLabels = { retirada: "Retirada na loja", entrega: "Entrega", consumo_local: "Comer na loja" } as const;
 export const fryLabels = { congelado: "Congelado", frito: "Frito" } as const;
 
 export function slugify(s: string) {

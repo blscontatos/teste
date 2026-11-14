@@ -85,7 +85,8 @@ export function normalizeProduct(p: Record<string, unknown>): Product {
         price_frozen: num(po.price_frozen),
         price_fried: num(po.price_fried),
       })),
-    flavors: [...(prod.flavors ?? [])].sort((a, b) => a.sort_order - b.sort_order),
+    price_per_flavor: Boolean(prod.price_per_flavor),
+    flavors: [...(prod.flavors ?? [])].sort((a, b) => a.sort_order - b.sort_order).map((f) => ({ ...f, price: num(f.price) })),
   };
 }
 

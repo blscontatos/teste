@@ -156,4 +156,39 @@ export function TagListEditor({ value, onChange, placeholder }: { value: string[
   );
 }
 
-export const toNumber = (v: string) => (v.trim() === "" ? null : Number(v.replace(",", ".")));
+export const toNumber = (v: string) => {
+  const t = v.trim();
+  if (t === "") return null;
+  // Formato brasileiro: "1.234,50" → 1234.5 ; "8,50" → 8.5 ; "8.50" ou "8" continuam valendo.
+  const n = Number(t.includes(",") ? t.replace(/\./g, "").replace(",", ".") : t);
+  return Number.isFinite(n) ? n : null;
+};
+
+/** Campo de valor em R$ que aceita vírgula enquanto a pessoa digita (ex.: "8,50"). */
+export function MoneyInput({
+  value,
+  onChange,
+  className = "field",
+  ...rest
+}: { value: number | null; onChange: (v: number | null) => void } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
+  const show = (v: number | null) => (v == null ? "" : String(v).replace(".", ","));
+  const [text, setText] = useState(show(value));
+  // Se o valor mudar por fora (ex.: carregou do banco), atualiza o texto.
+  useEffect(() => {
+    if (toNumber(text) !== value) setText(show(value));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+  return (
+    <input
+      {...rest}
+      className={className}
+      inputMode="decimal"
+      value={text}
+      onChange={(e) => {
+        const t = e.target.value.replace(/[^\d.,]/g, "");
+        setText(t);
+        onChange(toNumber(t));
+      }}
+    />
+  );
+}

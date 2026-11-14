@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { revalidateSite } from "@/app/admin/actions";
 import { formatDateTime, money } from "@/lib/format";
 import type { Product, Promotion, PromotionItem } from "@/lib/types";
-import { Btn, Modal, PageHeader, Switch, toNumber, useToast } from "./ui";
+import { Btn, Modal, MoneyInput, PageHeader, Switch, useToast } from "./ui";
 import { ImageUpload } from "./ImageUpload";
 import { SortableList, saveOrder } from "./SortableList";
 
@@ -157,11 +157,11 @@ export function PromotionsManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="label" htmlFor="pr-de">Preço antigo (riscado)</label>
-                  <input id="pr-de" className="field" inputMode="decimal" value={edit.old_price ?? ""} onChange={(e) => setEdit({ ...edit, old_price: toNumber(e.target.value) })} />
+                  <MoneyInput id="pr-de" value={edit.old_price} onChange={(v) => setEdit({ ...edit, old_price: v })} />
                 </div>
                 <div>
                   <label className="label" htmlFor="pr-por">Preço promocional *</label>
-                  <input id="pr-por" className="field" inputMode="decimal" value={edit.price ?? ""} onChange={(e) => setEdit({ ...edit, price: toNumber(e.target.value) ?? 0 })} />
+                  <MoneyInput id="pr-por" value={edit.price} onChange={(v) => setEdit({ ...edit, price: v ?? 0 })} />
                 </div>
                 <div>
                   <label className="label" htmlFor="pr-ini">Começa em</label>

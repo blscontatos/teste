@@ -69,7 +69,107 @@ export function CategoryList({ category }: { category: Category }) {
 }
 
 /** Tela de detalhes com as escolhas do produto. */
+/** Escolhe a tela certa: preço por sabor (ex.: pastel de feira) ou porções. */
 export function ProductDetail({ product }: { product: Product }) {
+  return product.price_per_flavor ? <PerFlavorDetail product={product} /> : <PortionProductDetail product={product} />;
+}
+
+/** Preço por sabor: o cliente escolhe quantas unidades quer de cada sabor. */
+function PerFlavorDetail({ product }: { product: Product }) {
+  const { addItem, close, data } = useShop();
+  const [qty, setQty] = useState<Record<string, number>>({});
+  const [notes, setNotes] = useState("");
+  const flavors = product.flavors.filter((f) => f.price != null);
+  const totalUnits = flavors.reduce((s, f) => s + (qty[f.id] ?? 0), 0);
+  const total = flavors.reduce((s, f) => s + (qty[f.id] ?? 0) * (f.price ?? 0), 0);
+  const closed = data.settings.store_closed;
+  const change = (id: string, n: number) => setQty((q) => ({ ...q, [id]: Math.max(0, Math.min(99, n)) }));
+
+  const submit = () => {
+    if (!totalUnits || closed || !product.available) return;
+    flavors.forEach((f, i) => {
+      const n = qty[f.id] ?? 0;
+      if (!n) return;
+      addItem({
+        product_id: product.id,
+        name: `${product.name} — ${f.name}`,
+        image: product.images[0],
+        portion_label: "unidade",
+        flavors: [f.name],
+        quantity: n,
+        unit_price: f.price ?? 0,
+        notes: i === flavors.findIndex((x) => (qty[x.id] ?? 0) > 0) ? notes.trim() : "",
+      });
+    });
+    close();
+  };
+
+  return (
+    <div className="flex flex-col">
+      <div className="relative aspect-[16/9] w-full bg-cream">
+        {product.images[0] && <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 768px) 100vw, 640px" className="object-cover" />}
+      </div>
+      <div className="space-y-6 p-5 sm:p-6">
+        <div>
+          <h3 className="font-title text-3xl text-navy">{product.name}</h3>
+          {product.description && <p className="mt-2 text-muted">{product.description}</p>}
+          {(!product.available || !flavors.length) && (
+            <p className="mt-3 rounded-2xl bg-cream px-4 py-3 text-sm font-semibold text-navy">Este produto está indisponível no momento.</p>
+          )}
+        </div>
+
+        {flavors.length > 0 && (
+          <fieldset>
+            <legend className="label">Sabores (preço por unidade)</legend>
+            <p className="hint mb-2">Escolha quantos você quer de cada sabor.</p>
+            <ul className="divide-y divide-navy/10 rounded-2xl bg-white shadow-card">
+              {flavors.map((f) => {
+                const n = qty[f.id] ?? 0;
+                return (
+                  <li key={f.id} className={`flex items-center justify-between gap-3 px-4 py-3 ${f.sold_out ? "opacity-50" : ""}`}>
+                    <div className="min-w-0">
+                      <p className={`font-semibold text-navy ${f.sold_out ? "line-through" : ""}`}>{f.name}</p>
+                      <p className="text-sm text-gold-600">{f.sold_out ? "Esgotado" : money(f.price)}</p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2.5">
+                      <button type="button" onClick={() => change(f.id, n - 1)} disabled={f.sold_out || n === 0} className="grid h-9 w-9 place-items-center rounded-full bg-cream text-navy disabled:opacity-40" aria-label={`Menos ${f.name}`}>
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="w-6 text-center font-bold text-navy" aria-live="polite" aria-label={`${n} de ${f.name}`}>{n}</span>
+                      <button type="button" onClick={() => change(f.id, n + 1)} disabled={f.sold_out} className="grid h-9 w-9 place-items-center rounded-full bg-navy text-white disabled:opacity-40" aria-label={`Mais ${f.name}`}>
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
+        )}
+
+        <div>
+          <label htmlFor="obs-sabor" className="label">Observação (opcional)</label>
+          <textarea id="obs-sabor" className="field min-h-20" maxLength={300} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: bem passado" />
+        </div>
+      </div>
+
+      <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-navy/10 bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div>
+          <p className="text-xs text-muted">{totalUnits ? `${totalUnits} ${totalUnits === 1 ? "unidade" : "unidades"}` : "Total"}</p>
+          <motion.p key={total} initial={{ scale: 0.9, opacity: 0.4 }} animate={{ scale: 1, opacity: 1 }} className="font-title text-2xl text-navy">
+            {money(total)}
+          </motion.p>
+        </div>
+        <PillButton onClick={submit} disabled={closed || !product.available || !totalUnits} size="lg">
+          {closed ? "Loja fechada hoje" : "Adicionar à sacola"}
+        </PillButton>
+      </div>
+    </div>
+  );
+}
+
+/** Produto com porções (bandejas, salgados fritos…). */
+function PortionProductDetail({ product }: { product: Product }) {
   const { addItem, close, data } = useShop();
   const isFried = product.kind === "frito";
   const [portionId, setPortionId] = useState(product.portions[0]?.id ?? "");

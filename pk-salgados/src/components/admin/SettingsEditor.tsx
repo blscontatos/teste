@@ -6,7 +6,7 @@ import { revalidateSite } from "@/app/admin/actions";
 import { defaultSettings } from "@/lib/defaults";
 import { maskPhone } from "@/lib/format";
 import type { Settings } from "@/lib/types";
-import { Btn, Card, PageHeader, Switch, TagListEditor, toNumber, useToast } from "./ui";
+import { Btn, Card, MoneyInput, PageHeader, Switch, TagListEditor, useToast } from "./ui";
 import { StorageCard } from "./StorageCard";
 
 export function SettingsEditor() {
@@ -109,7 +109,7 @@ export function SettingsEditor() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label" htmlFor="cfg-taxa">Taxa de entrega (R$)</label>
-                <input id="cfg-taxa" className="field" inputMode="decimal" value={s.delivery_fee} onChange={(e) => set("delivery_fee", toNumber(e.target.value) ?? 0)} />
+                <MoneyInput id="cfg-taxa" value={s.delivery_fee} onChange={(v) => set("delivery_fee", v ?? 0)} />
                 <p className="hint">0 = a combinar</p>
               </div>
               <div>

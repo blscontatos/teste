@@ -150,6 +150,8 @@ interface ProdSeed {
   price: number | null;
   max_flavors: number;
   featured?: boolean;
+  price_per_flavor?: boolean;
+  available?: boolean;
   portions: { label: string; units?: number; price?: number; frozen?: number; fried?: number; max?: number }[];
   flavors: string[];
 }
@@ -241,6 +243,15 @@ const prodSeeds: ProdSeed[] = [
     image: "/images/cat-bolos-festa.webp", price: null, max_flavors: 1,
     portions: [], flavors: [],
   },
+  {
+    // Pastel grande de feira: cada sabor tem um preço (vendido por unidade).
+    // Fica "indisponível" até as donas cadastrarem os sabores com preço no painel.
+    cat: "pastel-feira", name: "Pastel Frito", slug: "pastel-frito-de-feira",
+    description: "Pastel grande de feira, crocante e bem recheado. Escolha os sabores e quantos quer de cada.",
+    image: "/images/cat-pastel-frito.webp", price: null, max_flavors: 1,
+    price_per_flavor: true, available: false,
+    portions: [], flavors: [],
+  },
 ];
 
 export const defaultProducts: Product[] = prodSeeds.map((p, i) => {
@@ -262,6 +273,7 @@ export const defaultProducts: Product[] = prodSeeds.map((p, i) => {
     product_id: pid,
     name,
     sold_out: false,
+    price: null,
     sort_order: j,
   }));
   return {
@@ -274,7 +286,8 @@ export const defaultProducts: Product[] = prodSeeds.map((p, i) => {
     images: [p.image],
     price: p.price,
     max_flavors: p.max_flavors,
-    available: true,
+    price_per_flavor: p.price_per_flavor ?? false,
+    available: p.available ?? true,
     visible: true,
     featured: p.featured ?? false,
     sort_order: i,

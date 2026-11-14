@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { revalidateSite } from "@/app/admin/actions";
 import { slugify } from "@/lib/format";
 import type { Category, Flavor, Portion, Product, ProductKind } from "@/lib/types";
-import { Btn, Card, PageHeader, Switch, toNumber, useToast } from "./ui";
+import { Btn, Card, MoneyInput, PageHeader, Switch, toNumber, useToast } from "./ui";
 import { ImageUpload } from "./ImageUpload";
 import { SortableList } from "./SortableList";
 
@@ -18,7 +18,7 @@ type EditFlavor = Omit<Flavor, "product_id" | "sort_order"> & { _new?: boolean }
 const newId = () => crypto.randomUUID();
 const blank: Omit<Product, "id" | "portions" | "flavors" | "sort_order"> = {
   category_id: null, kind: "comum", name: "", slug: "", description: "", images: [], price: null,
-  max_flavors: 2, available: true, visible: true, featured: false,
+  max_flavors: 2, price_per_flavor: false, available: true, visible: true, featured: false,
 };
 
 export function ProductEditor({ id, initialCategoryId }: { id?: string; initialCategoryId?: string }) {
@@ -63,18 +63,28 @@ export function ProductEditor({ id, initialCategoryId }: { id?: string; initialC
   const addFlavor = () => {
     const names = newFlavor.split(/[,\n•]/).map((s) => s.trim()).filter(Boolean);
     if (!names.length) return;
-    setFlavors((l) => [...l, ...names.filter((n) => !l.some((f) => f.name.toLowerCase() === n.toLowerCase())).map((name) => ({ id: newId(), name, sold_out: false, _new: true }))]);
+    setFlavors((l) => [...l, ...names.filter((n) => !l.some((f) => f.name.toLowerCase() === n.toLowerCase())).map((name) => ({ id: newId(), name, sold_out: false, price: null, _new: true }))]);
     setNewFlavor("");
   };
 
   const save = async () => {
     if (!p.name.trim()) return toast("Dê um nome ao produto.", "erro");
-    if (p.kind !== "bolo_festa" && !portions.length) return toast("Cadastre pelo menos uma porção com preço.", "erro");
-    const bad = portions.find((po) => !po.label.trim() || (p.kind === "frito" ? po.price_frozen == null && po.price_fried == null : po.price == null));
-    if (p.kind !== "bolo_festa" && bad) return toast("Preencha o nome e o preço de todas as porções.", "erro");
+    const perFlavor = p.kind !== "bolo_festa" && p.price_per_flavor;
+    if (perFlavor) {
+      // Preço por sabor: cada sabor disponível precisa de preço.
+      if (p.available && !flavors.length) return toast("Cadastre os sabores com o preço de cada um.", "erro");
+      if (flavors.some((f) => !f.sold_out && f.price == null)) return toast("Preencha o preço de todos os sabores (ou marque como esgotado).", "erro");
+    } else {
+      if (p.kind !== "bolo_festa" && !portions.length) return toast("Cadastre pelo menos uma porção com preço.", "erro");
+      const bad = portions.find((po) => !po.label.trim() || (p.kind === "frito" ? po.price_frozen == null && po.price_fried == null : po.price == null));
+      if (p.kind !== "bolo_festa" && bad) return toast("Preencha o nome e o preço de todas as porções.", "erro");
+    }
 
     setSaving(true);
-    const prices = portions.map((po) => (p.kind === "frito" ? po.price_frozen ?? po.price_fried : po.price)).filter((v): v is number => v != null);
+    const prices = (perFlavor
+      ? flavors.filter((f) => !f.sold_out).map((f) => f.price)
+      : portions.map((po) => (p.kind === "frito" ? po.price_frozen ?? po.price_fried : po.price))
+    ).filter((v): v is number => v != null);
     const row = {
       category_id: p.category_id,
       kind: p.kind,
@@ -83,6 +93,7 @@ export function ProductEditor({ id, initialCategoryId }: { id?: string; initialC
       images: p.images.filter(Boolean),
       price: prices.length ? Math.min(...prices) : p.price,
       max_flavors: Math.max(1, p.max_flavors || 1),
+      price_per_flavor: perFlavor,
       available: p.available,
       visible: p.visible,
       featured: p.featured,
@@ -105,7 +116,9 @@ export function ProductEditor({ id, initialCategoryId }: { id?: string; initialC
     const ops = [];
     if (removed.portions.length) ops.push(sb.from("product_portions").delete().in("id", removed.portions));
     if (removed.flavors.length) ops.push(sb.from("product_flavors").delete().in("id", removed.flavors));
-    if (p.kind !== "bolo_festa" && portions.length)
+    // No preço por sabor não há porções: apaga as que existiam.
+    if (perFlavor && portions.some((po) => !po._new)) ops.push(sb.from("product_portions").delete().eq("product_id", productId!));
+    if (!perFlavor && p.kind !== "bolo_festa" && portions.length)
       ops.push(
         sb.from("product_portions").upsert(
           portions.map((po, i) => ({
@@ -118,7 +131,7 @@ export function ProductEditor({ id, initialCategoryId }: { id?: string; initialC
         ),
       );
     if (flavors.length)
-      ops.push(sb.from("product_flavors").upsert(flavors.map((f, i) => ({ id: f.id, product_id: productId, name: f.name.trim(), sold_out: f.sold_out, sort_order: i }))));
+      ops.push(sb.from("product_flavors").upsert(flavors.map((f, i) => ({ id: f.id, product_id: productId, name: f.name.trim(), sold_out: f.sold_out, price: perFlavor ? f.price : null, sort_order: i }))));
     const results = await Promise.all(ops);
     if (results.some((r) => r.error)) return fail();
 
@@ -176,6 +189,17 @@ export function ProductEditor({ id, initialCategoryId }: { id?: string; initialC
           </Card>
 
           {!isCake && (
+            <Card>
+              <Switch
+                label="Preço diferente para cada sabor"
+                hint="Para itens vendidos por unidade em que cada sabor tem um valor (ex.: pastel de feira). O cliente escolhe quantos quer de cada sabor."
+                checked={p.price_per_flavor}
+                onChange={(v) => set("price_per_flavor", v)}
+              />
+            </Card>
+          )}
+
+          {!isCake && !p.price_per_flavor && (
             <Card className="space-y-3">
               <div>
                 <h2 className="font-semibold text-navy">Porções e preços</h2>
@@ -199,13 +223,13 @@ export function ProductEditor({ id, initialCategoryId }: { id?: string; initialC
                     {isFried ? (
                       <>
                         <label><span className="text-[0.7rem] font-semibold text-muted">Congelado R$</span>
-                          <input className="field" inputMode="decimal" value={po.price_frozen ?? ""} onChange={(e) => setPortion(po.id, { price_frozen: toNumber(e.target.value) })} /></label>
+                          <MoneyInput value={po.price_frozen} onChange={(v) => setPortion(po.id, { price_frozen: v })} /></label>
                         <label><span className="text-[0.7rem] font-semibold text-muted">Frito R$</span>
-                          <input className="field" inputMode="decimal" value={po.price_fried ?? ""} onChange={(e) => setPortion(po.id, { price_fried: toNumber(e.target.value) })} /></label>
+                          <MoneyInput value={po.price_fried} onChange={(v) => setPortion(po.id, { price_fried: v })} /></label>
                       </>
                     ) : (
                       <label className="sm:col-span-2"><span className="text-[0.7rem] font-semibold text-muted">Preço R$</span>
-                        <input className="field" inputMode="decimal" value={po.price ?? ""} onChange={(e) => setPortion(po.id, { price: toNumber(e.target.value) })} /></label>
+                        <MoneyInput value={po.price} onChange={(v) => setPortion(po.id, { price: v })} /></label>
                     )}
                     <label><span className="text-[0.7rem] font-semibold text-muted">Máx. sabores</span>
                       <input className="field" inputMode="numeric" value={po.max_flavors ?? ""} onChange={(e) => setPortion(po.id, { max_flavors: toNumber(e.target.value) })} /></label>
@@ -226,12 +250,14 @@ export function ProductEditor({ id, initialCategoryId }: { id?: string; initialC
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <h2 className="font-semibold text-navy">Sabores</h2>
-                  <p className="text-xs text-muted">Marque “Esgotado” quando acabar algum sabor.</p>
+                  <p className="text-xs text-muted">
+                    {p.price_per_flavor ? "Coloque o preço de cada sabor (por unidade). " : ""}Marque “Esgotado” quando acabar algum sabor.
+                  </p>
                 </div>
-                <label className="text-sm font-semibold text-navy">
+                {!p.price_per_flavor && <label className="text-sm font-semibold text-navy">
                   Limite de sabores por porção
                   <input className="field mt-1 w-28" inputMode="numeric" value={p.max_flavors} onChange={(e) => set("max_flavors", Number(e.target.value.replace(/\D/g, "")) || 1)} />
-                </label>
+                </label>}
               </div>
               <SortableList
                 items={flavors}
@@ -239,6 +265,17 @@ export function ProductEditor({ id, initialCategoryId }: { id?: string; initialC
                 render={(f) => (
                   <div className="flex items-center gap-2">
                     <input className="field" value={f.name} onChange={(e) => setFlavors((l) => l.map((x) => (x.id === f.id ? { ...x, name: e.target.value } : x)))} aria-label="Nome do sabor" />
+                    {p.price_per_flavor && (
+                      <label className="flex shrink-0 items-center gap-1 text-sm font-semibold text-navy">
+                        R$
+                        <MoneyInput
+                          className="field w-24"
+                          aria-label={`Preço de ${f.name}`}
+                          value={f.price}
+                          onChange={(v) => setFlavors((l) => l.map((x) => (x.id === f.id ? { ...x, price: v } : x)))}
+                        />
+                      </label>
+                    )}
                     <button type="button" onClick={() => setFlavors((l) => l.map((x) => (x.id === f.id ? { ...x, sold_out: !x.sold_out } : x)))} className={`shrink-0 rounded-full px-3 py-2 text-xs font-bold ${f.sold_out ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-800"}`}>
                       {f.sold_out ? "Esgotado" : "Disponível"}
                     </button>

@@ -77,6 +77,8 @@ export interface Flavor {
   product_id: string;
   name: string;
   sold_out: boolean;
+  /** Preço deste sabor (só nos produtos com "preço por sabor") */
+  price: number | null;
   sort_order: number;
 }
 
@@ -90,6 +92,8 @@ export interface Product {
   images: string[];
   price: number | null;
   max_flavors: number;
+  /** true = cada sabor tem seu preço, vendido por unidade (ex.: pastel de feira) */
+  price_per_flavor: boolean;
   available: boolean;
   visible: boolean;
   featured: boolean;

@@ -369,7 +369,42 @@ ok(catSel.startsWith("Pastel Frito") && (await admin.getByLabel("Tipo de produto
 await site.goto(BASE, { waitUntil: "networkidle" });
 ok((await site.getByRole("button", { name: "Ver Mini Pastel Aperitivo" }).count()) === 1 && (await site.getByRole("button", { name: "Ver Pastel Frito" }).count()) === 1, "Site: cartões 'Mini Pastel Aperitivo' e 'Pastel Frito'");
 await site.getByRole("button", { name: "Ver Pastel Frito" }).click();
-ok(await site.getByRole("link", { name: /Consultar no WhatsApp/ }).waitFor({ timeout: 8000 }).then(() => true, () => false), "Pastel Frito sem produto abre 'Consultar no WhatsApp'");
+ok(await site.getByText("Este produto está indisponível no momento.").waitFor({ timeout: 8000 }).then(() => true, () => false), "Pastel Frito sem sabores aparece como indisponível");
+await site.keyboard.press("Escape");
+
+// ---------------------------------------------------------------- Preço por sabor (pastel de feira)
+await admin.goto(`${BASE}/admin/produtos/00000000-0000-4000-8000-000200000013`); // Pastel Frito
+ok(await admin.getByRole("switch", { name: "Preço diferente para cada sabor" }).getAttribute("aria-checked") === "true", "Pastel Frito no painel com 'preço por sabor'");
+const novo = admin.getByPlaceholder(/Novo sabor/);
+await novo.fill("Carne, Queijo");
+await novo.press("Enter");
+await admin.getByLabel("Preço de Carne").fill("8,50");
+await admin.getByLabel("Preço de Queijo").fill("9");
+ok((await admin.getByLabel("Preço de Carne").inputValue()) === "8,50", "Campo de preço aceita vírgula (8,50)");
+await admin.getByRole("switch", { name: "Disponível para pedido" }).click();
+await admin.getByRole("button", { name: "Salvar produto" }).click();
+await admin.getByText("Produto salvo!").last().waitFor();
+await admin.waitForTimeout(800);
+await site.goto(BASE, { waitUntil: "networkidle" });
+const pastelCard = await site.getByRole("button", { name: "Ver Pastel Frito" }).textContent();
+ok(pastelCard.replace(/\u00a0/g, " ").includes("a partir de R$ 8,50"), "Cartão mostra 'a partir de R$ 8,50'");
+await site.getByRole("button", { name: "Ver Pastel Frito" }).click();
+await site.getByRole("button", { name: "Mais Carne" }).click();
+await site.getByRole("button", { name: "Mais Carne" }).click();
+await site.getByRole("button", { name: "Mais Queijo" }).click();
+ok((await site.getByRole("dialog").textContent()).replace(/\u00a0/g, " ").includes("R$ 26,00"), "Total por sabor: 2×8,50 + 1×9,00 = R$ 26,00");
+await site.getByRole("button", { name: "Adicionar à sacola" }).click();
+await site.getByRole("button", { name: /Abrir sacola/ }).click();
+const bag = (await site.getByRole("dialog").textContent()).replace(/\u00a0/g, " ");
+ok(bag.includes("Pastel Frito — Carne") && bag.includes("Pastel Frito — Queijo"), "Sacola com um item por sabor");
+await site.keyboard.press("Escape");
+const pf = await fetch(`${sbUrl}/rest/v1/rpc/create_order`, {
+  method: "POST",
+  headers: { apikey: ANON, "Content-Type": "application/json" },
+  body: JSON.stringify({ p_order: { channel: "whatsapp", customer_name: "Teste Pastel", phone: "21966665555", fulfillment: "retirada", payment: "pix", desired_at: `${nextOpen(3)}T15:00:00-03:00`, items: [{ product_id: "00000000-0000-4000-8000-000200000013", flavors: ["Carne"], quantity: 2 }, { product_id: "00000000-0000-4000-8000-000200000013", flavors: ["Queijo"], quantity: 1, unit_price: 0.01 }] } }),
+});
+const pfr = await pf.json();
+ok(Number(pfr.total) === 26, `Banco calcula o preço pelo sabor (total ${pfr.total})`);
 
 // ---------------------------------------------------------------- Fotos: apagar
 

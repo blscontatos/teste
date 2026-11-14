@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import { CalendarClock } from "lucide-react";
 import { useShop } from "@/components/order/ShopProvider";
 import { SectionTitle } from "@/components/ui/Decor";
-import { Reveal, Stagger, StaggerItem } from "@/components/ui/Reveal";
+import { Reveal } from "@/components/ui/Reveal";
+import { Carousel } from "./Carousel";
 import { PillButton } from "@/components/ui/PillButton";
 import { formatDate, money } from "@/lib/format";
 
@@ -27,11 +28,19 @@ export function Promotions() {
         <Reveal>
           <SectionTitle eyebrow={t.eyebrow} title={t.title} subtitle={t.subtitle} />
         </Reveal>
-        <Stagger className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {promos.map((p) => {
+        <div className="mt-10">
+        <Carousel label={t.title}>
+          {promos.map((p, index) => {
             const discount = p.old_price && p.old_price > p.price ? Math.round((1 - p.price / p.old_price) * 100) : 0;
             return (
-              <StaggerItem key={p.id}>
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-30px" }}
+                transition={{ duration: 0.55, delay: Math.min(index, 4) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                className="w-[85%] shrink-0 sm:w-[58%] lg:w-[38%]"
+              >
                 <motion.article
                   whileHover={{ y: -6 }}
                   transition={{ type: "spring", stiffness: 300, damping: 24 }}
@@ -95,10 +104,11 @@ export function Promotions() {
                     </div>
                   </div>
                 </motion.article>
-              </StaggerItem>
+              </motion.div>
             );
           })}
-        </Stagger>
+        </Carousel>
+        </div>
       </div>
     </section>
   );

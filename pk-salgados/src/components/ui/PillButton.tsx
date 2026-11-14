@@ -25,7 +25,7 @@ type Props = Omit<HTMLMotionProps<"button">, "children"> & {
 const sizes = { sm: "px-4 py-2 text-sm", md: "px-6 py-3 text-[0.95rem]", lg: "px-7 py-3.5 text-base" };
 
 export function PillButton({ variant = "navy", arrow, whatsapp, size = "md", className = "", children, href, ...rest }: Props) {
-  const cls = `group inline-flex items-center justify-center gap-2 rounded-full font-semibold shadow-pill transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${styles[variant]} ${sizes[size]} ${className}`;
+  const cls = `group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold shadow-pill transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${styles[variant]} ${sizes[size]} ${className}`;
   const inner = (
     <>
       {whatsapp && <WhatsAppIcon className="h-5 w-5" />}

@@ -13,6 +13,7 @@ import { isValidPhone, localInputToIso, maskPhone, minDateLocal } from "@/lib/fo
 import { cakeMessage, waLink } from "@/lib/whatsapp";
 import { timeSlots } from "@/lib/hours";
 import { DateTimeFields } from "./DateTimeFields";
+import { Carousel } from "@/components/site/Carousel";
 import type { Product } from "@/lib/types";
 
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -261,21 +262,20 @@ export function CakeForm({ product }: { product: Product }) {
         {gallery.length > 0 && (
           <div>
             <p className="label">Bolos que já fizemos</p>
-            <ul className="snap-row -mx-5 flex gap-2.5 overflow-x-auto px-5 pb-1 sm:-mx-6 sm:px-6">
+            <Carousel label="Bolos que já fizemos">
               {gallery.map((img, i) => (
-                <li key={img} className="shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setZoom(i)}
-                    className="group relative block h-28 w-28 overflow-hidden rounded-2xl bg-cream shadow-card sm:h-32 sm:w-32"
-                    aria-label={`Ver bolo ${i + 1} em tamanho grande`}
-                  >
-                    <Image src={img} alt={`Bolo feito pela PK ${i + 1}`} fill sizes="128px" className="object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <span className="absolute left-1.5 top-1.5 grid h-6 min-w-6 place-items-center rounded-full bg-navy/80 px-1.5 text-xs font-bold text-white">{i + 1}</span>
-                  </button>
-                </li>
+                <button
+                  key={img}
+                  type="button"
+                  onClick={() => setZoom(i)}
+                  className="group relative block aspect-square w-[62%] shrink-0 overflow-hidden rounded-3xl bg-cream shadow-card sm:w-[44%]"
+                  aria-label={`Ver bolo ${i + 1} em tamanho grande`}
+                >
+                  <Image src={img} alt={`Bolo feito pela PK ${i + 1}`} fill sizes="(max-width: 640px) 62vw, 280px" className="object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <span className="absolute left-2 top-2 grid h-7 min-w-7 place-items-center rounded-full bg-navy/85 px-2 text-sm font-bold text-white">{i + 1}</span>
+                </button>
               ))}
-            </ul>
+            </Carousel>
             <p className="hint">Toque para ampliar. Gostou de algum? Toque em “Quero um parecido”.</p>
           </div>
         )}
